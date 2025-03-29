@@ -5,9 +5,9 @@ export interface IArtist {
   image: string;
   description: string;
   socialLinks: {
-    facebook?: string;
-    twitter?: string;
-    instagram?: string;
+    facebook: string;
+    twitter: string;
+    instagram: string;
   };
   createdAt: Date;
   updatedAt: Date;

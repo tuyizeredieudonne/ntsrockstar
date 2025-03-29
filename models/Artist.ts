@@ -15,9 +15,21 @@ const ArtistSchema = new mongoose.Schema({
     required: true,
   },
   socialLinks: {
-    facebook: String,
-    twitter: String,
-    instagram: String,
+    facebook: {
+      type: String,
+      default: '',
+      required: true,
+    },
+    twitter: {
+      type: String,
+      default: '',
+      required: true,
+    },
+    instagram: {
+      type: String,
+      default: '',
+      required: true,
+    },
   },
 }, {
   timestamps: true,
