@@ -19,10 +19,10 @@ const MONGODB_URI = process.env.MONGODB_URI;
  * in development. This prevents connections growing exponentially
  * during API Route usage.
  */
-let cached = global.mongoose;
+let cached: { conn: typeof mongoose | null; promise: Promise<typeof mongoose> | null } = global.mongoose || { conn: null, promise: null };
 
-if (!cached) {
-  cached = global.mongoose = { conn: null, promise: null };
+if (!global.mongoose) {
+  global.mongoose = cached;
 }
 
 async function dbConnect() {
