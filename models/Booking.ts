@@ -1,68 +1,48 @@
 import mongoose from 'mongoose';
+import { IBooking } from '../types';
 
-const bookingSchema = new mongoose.Schema({
-  fullName: {
-    type: String,
-    required: true,
-    trim: true,
-  },
-  studentLevel: {
-    type: String,
+const BookingSchema = new mongoose.Schema({
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
     required: true,
   },
-  trade: {
-    type: String,
+  event: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'EventDetails',
     required: true,
-  },
-  phoneNumber: {
-    type: String,
-    required: true,
-  },
-  email: {
-    type: String,
-    required: true,
-    trim: true,
-    lowercase: true,
   },
   ticketType: {
-    name: {
-      type: String,
-      required: true,
-    },
-    price: {
-      type: Number,
-      required: true,
-    },
-  },
-  momoTransactionId: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'TicketType',
     required: true,
   },
-  paymentScreenshot: {
-    type: String,
+  quantity: {
+    type: Number,
+    required: true,
+    min: 1,
+  },
+  totalAmount: {
+    type: Number,
     required: true,
   },
   status: {
     type: String,
-    enum: ['pending', 'approved', 'rejected'],
+    enum: ['pending', 'confirmed', 'cancelled'],
     default: 'pending',
   },
-  createdAt: {
-    type: Date,
-    default: Date.now,
+  transactionId: {
+    type: String,
+    required: true,
   },
-  updatedAt: {
-    type: Date,
-    default: Date.now,
-  },
+}, {
+  timestamps: true,
 });
 
 // Update the updatedAt timestamp before saving
-bookingSchema.pre('save', function(next) {
+BookingSchema.pre('save', function(next) {
   this.updatedAt = new Date();
   next();
 });
 
-const Booking = mongoose.models.Booking || mongoose.model('Booking', bookingSchema);
-
-export default Booking; 
+export default mongoose.models.Booking || mongoose.model<IBooking>('Booking', BookingSchema); 

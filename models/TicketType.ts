@@ -1,59 +1,30 @@
 import mongoose from 'mongoose';
+import { ITicketType } from '../types';
 
-const ticketTypeSchema = new mongoose.Schema({
+const TicketTypeSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: [true, 'Please provide a name for this ticket type'],
+    required: true,
     trim: true,
   },
   price: {
     type: Number,
-    required: [true, 'Please provide a price for this ticket type'],
-  },
-  discountPrice: {
-    type: Number,
-    required: false,
+    required: true,
   },
   description: {
     type: String,
-    required: [true, 'Please provide a description for this ticket type'],
+    required: true,
   },
-  features: {
-    type: [String],
-    default: [],
-  },
-  discountEndTime: {
-    type: Date,
-    required: false,
-  },
-  isActive: {
-    type: Boolean,
-    default: true,
-  },
-  maxQuantity: {
-    type: Number,
-    default: 100,
-  },
-  soldQuantity: {
-    type: Number,
-    default: 0,
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
-  updatedAt: {
-    type: Date,
-    default: Date.now,
-  },
+}, {
+  timestamps: true,
 });
 
 // Update the updatedAt timestamp before saving
-ticketTypeSchema.pre('save', function(next) {
+TicketTypeSchema.pre('save', function(next) {
   this.updatedAt = new Date();
   next();
 });
 
-const TicketType = mongoose.models.TicketType || mongoose.model('TicketType', ticketTypeSchema);
+const TicketType = mongoose.models.TicketType || mongoose.model<ITicketType>('TicketType', TicketTypeSchema);
 
 export default TicketType; 
