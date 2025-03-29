@@ -35,6 +35,9 @@ UserSchema.pre('save', async function (next) {
   }
   
   try {
+    if (!this.password) {
+      throw new Error('Password is required');
+    }
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(this.password, salt);
     this.password = hashedPassword;
@@ -46,6 +49,9 @@ UserSchema.pre('save', async function (next) {
 
 // Compare entered password with stored hash
 UserSchema.methods.comparePassword = async function (enteredPassword: string) {
+  if (!this.password) {
+    throw new Error('Password is not set');
+  }
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
