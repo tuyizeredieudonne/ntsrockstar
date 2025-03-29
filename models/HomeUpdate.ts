@@ -21,10 +21,4 @@ const HomeUpdateSchema = new mongoose.Schema({
 // Add index for better query performance
 HomeUpdateSchema.index({ createdAt: -1 });
 
-// Update the updatedAt timestamp before saving
-HomeUpdateSchema.pre('save', function(next) {
-  this.updatedAt = new Date();
-  next();
-});
-
 export default mongoose.models.HomeUpdate || mongoose.model<IHomeUpdate>('HomeUpdate', HomeUpdateSchema); 

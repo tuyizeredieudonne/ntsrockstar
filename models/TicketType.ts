@@ -25,6 +25,4 @@ TicketTypeSchema.pre('save', function(next) {
   next();
 });
 
-const TicketType = mongoose.models.TicketType || mongoose.model<ITicketType>('TicketType', TicketTypeSchema);
-
-export default TicketType; 
+export default mongoose.models.TicketType || mongoose.model<ITicketType>('TicketType', TicketTypeSchema); 

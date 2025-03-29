@@ -18,19 +18,10 @@ const UserSchema = new mongoose.Schema({
     required: [true, 'Please provide a password'],
     minlength: [6, 'Password must be at least 6 characters'],
   },
-  phoneNumber: {
-    type: String,
-    required: [true, 'Please provide a phone number'],
-    match: [/^[0-9+]{10,12}$/, 'Please provide a valid phone number'],
-  },
   role: {
     type: String,
     enum: ['user', 'admin'],
     default: 'user',
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now,
   },
 }, {
   timestamps: true,
@@ -43,9 +34,14 @@ UserSchema.pre('save', async function (next) {
     return;
   }
   
-  const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
-  next();
+  try {
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(this.password, salt);
+    this.password = hashedPassword;
+    next();
+  } catch (error) {
+    next(error as Error);
+  }
 });
 
 // Compare entered password with stored hash
