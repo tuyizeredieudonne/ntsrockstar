@@ -17,6 +17,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     case 'GET':
       try {
         const bookings = await Booking.find()
+          .populate('ticketType')
           .sort({ createdAt: -1 })
           .select('-__v');
 

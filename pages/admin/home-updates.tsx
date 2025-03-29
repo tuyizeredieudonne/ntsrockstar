@@ -45,7 +45,6 @@ import { useRouter } from 'next/router';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import AdminLayout from '../../components/layouts/AdminLayout';
-import axios from 'axios';
 
 interface HomeUpdate {
   _id?: string;
@@ -107,12 +106,13 @@ export default function HomeUpdates() {
   const fetchHomeUpdates = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('/api/home-updates');
-      if (response.data.success) {
-        setHomeUpdates(response.data.data);
+      const response = await fetch('/api/home-updates');
+      const data = await response.json();
+      if (data.success) {
+        setHomeUpdates(data.data);
         setError('');
       } else {
-        setError(response.data.message || 'Failed to fetch home updates');
+        setError(data.message || 'Failed to fetch home updates');
       }
     } catch (err) {
       console.error('Error fetching home updates:', err);
@@ -185,13 +185,17 @@ export default function HomeUpdates() {
       
       const method = editingUpdate && editingUpdate._id ? 'PUT' : 'POST';
       
-      const response = await axios.request({
+      const response = await fetch(url, {
         method,
-        url,
-        data: formData,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
       });
 
-      if (response.data.success) {
+      const data = await response.json();
+
+      if (data.success) {
         fetchHomeUpdates();
         handleCloseDialog();
         setError('');
@@ -201,7 +205,7 @@ export default function HomeUpdates() {
           severity: 'success'
         });
       } else {
-        setError(response.data.message || `Failed to ${editingUpdate ? 'update' : 'create'} home update`);
+        setError(data.message || `Failed to ${editingUpdate ? 'update' : 'create'} home update`);
       }
     } catch (err) {
       console.error(`Error ${editingUpdate ? 'updating' : 'creating'} home update:`, err);
@@ -216,9 +220,13 @@ export default function HomeUpdates() {
       setActionLoading(true);
       
       try {
-        const response = await axios.delete(`/api/home-updates/${id}`);
+        const response = await fetch(`/api/home-updates/${id}`, {
+          method: 'DELETE',
+        });
         
-        if (response.data.success) {
+        const data = await response.json();
+
+        if (data.success) {
           fetchHomeUpdates();
           setError('');
           setSnackbar({
@@ -227,7 +235,7 @@ export default function HomeUpdates() {
             severity: 'success'
           });
         } else {
-          setError(response.data.message || 'Failed to delete home update');
+          setError(data.message || 'Failed to delete home update');
         }
       } catch (err) {
         console.error('Error deleting home update:', err);
@@ -240,15 +248,23 @@ export default function HomeUpdates() {
 
   const handlePublishToggle = async (update: HomeUpdate) => {
     try {
-      const response = await axios.put(`/api/home-updates/${update._id}`, {
-        ...update,
-        isPublished: !update.isPublished,
+      const response = await fetch(`/api/home-updates/${update._id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...update,
+          isPublished: !update.isPublished,
+        }),
       });
 
-      if (response.data.success) {
+      const data = await response.json();
+
+      if (data.success) {
         fetchHomeUpdates();
       } else {
-        setError(response.data.message || 'Failed to toggle publish status');
+        setError(data.message || 'Failed to toggle publish status');
       }
     } catch (err) {
       console.error('Error toggling publish status:', err);

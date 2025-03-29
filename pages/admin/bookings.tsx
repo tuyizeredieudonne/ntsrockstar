@@ -262,10 +262,10 @@ const BookingsManagement = () => {
                           <strong>Trade:</strong> {booking.trade}
                         </Typography>
                         <Typography variant="body2">
-                          <strong>Ticket Type:</strong> {booking.ticketType.name}
+                          <strong>Ticket Type:</strong> {booking.ticketType?.name || 'N/A'}
                         </Typography>
                         <Typography variant="body2">
-                          <strong>Amount:</strong> {booking.ticketType.price} RWF
+                          <strong>Amount:</strong> {booking.ticketType?.price ? `${booking.ticketType.price} RWF` : 'N/A'}
                         </Typography>
                         <Typography variant="body2">
                           <strong>Transaction ID:</strong> {booking.momoTransactionId}
@@ -356,8 +356,8 @@ const BookingsManagement = () => {
                         <TableCell>{booking.phoneNumber}</TableCell>
                         <TableCell>{booking.studentLevel}</TableCell>
                         <TableCell>{booking.trade}</TableCell>
-                        <TableCell>{booking.ticketType.name}</TableCell>
-                        <TableCell>{booking.ticketType.price} RWF</TableCell>
+                        <TableCell>{booking.ticketType?.name || 'N/A'}</TableCell>
+                        <TableCell>{booking.ticketType?.price ? `${booking.ticketType.price} RWF` : 'N/A'}</TableCell>
                         <TableCell>
                           <Typography 
                             variant="body2" 
@@ -496,10 +496,10 @@ const BookingsManagement = () => {
                         <strong>Trade:</strong> {selectedBooking.trade}
                       </Typography>
                       <Typography variant="body2" paragraph>
-                        <strong>Ticket Type:</strong> {selectedBooking.ticketType.name}
+                        <strong>Ticket Type:</strong> {selectedBooking.ticketType?.name || 'N/A'}
                       </Typography>
                       <Typography variant="body2" paragraph>
-                        <strong>Amount:</strong> {selectedBooking.ticketType.price} RWF
+                        <strong>Amount:</strong> {selectedBooking.ticketType?.price ? `${selectedBooking.ticketType.price} RWF` : 'N/A'}
                       </Typography>
                     </Grid>
                     <Grid item xs={12}>
