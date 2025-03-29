@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import dynamic from 'next/dynamic';
 import {
   Box,
   Container,
@@ -42,9 +43,14 @@ import {
 } from '@mui/icons-material';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
-import Header from '../../components/Header';
-import Footer from '../../components/Footer';
-import AdminLayout from '../../components/layouts/AdminLayout';
+
+// Dynamically import components that use browser APIs
+const DynamicHeader = dynamic(() => import('../../components/Header'), { ssr: false });
+const DynamicFooter = dynamic(() => import('../../components/Footer'), { ssr: false });
+const DynamicAdminLayout = dynamic(() => import('../../components/layouts/AdminLayout'), { ssr: false });
+
+// Dynamically import MUI components
+const DynamicMUIComponents = dynamic(() => import('../../components/MUIComponents'), { ssr: false });
 
 interface HomeUpdate {
   _id?: string;
@@ -65,11 +71,12 @@ interface FormErrors {
   videoUrl?: string;
 }
 
-export default function HomeUpdates() {
+function HomeUpdatesContent() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const [mounted, setMounted] = useState(false);
   
   const [homeUpdates, setHomeUpdates] = useState<HomeUpdate[]>([]);
   const [loading, setLoading] = useState(true);
@@ -94,14 +101,18 @@ export default function HomeUpdates() {
   });
 
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
     if (status === 'unauthenticated') {
       router.push('/auth/signin');
     } else if (status === 'authenticated' && session?.user?.role !== 'admin') {
       router.push('/');
-    } else if (status === 'authenticated') {
+    } else if (status === 'authenticated' && mounted) {
       fetchHomeUpdates();
     }
-  }, [status, session]);
+  }, [status, session, mounted]);
 
   const fetchHomeUpdates = async () => {
     try {
@@ -301,9 +312,13 @@ export default function HomeUpdates() {
     }));
   };
 
+  if (!mounted) {
+    return null;
+  }
+
   if (loading) {
     return (
-      <AdminLayout>
+      <DynamicAdminLayout>
         <Box
           sx={{
             display: 'flex',
@@ -315,7 +330,7 @@ export default function HomeUpdates() {
         >
           <CircularProgress />
         </Box>
-      </AdminLayout>
+      </DynamicAdminLayout>
     );
   }
 
@@ -324,181 +339,369 @@ export default function HomeUpdates() {
   }
 
   return (
-    <AdminLayout>
-      <Box
-        component="main"
-        sx={{
-          pt: 8,
-          minHeight: '100vh',
-          background: 'linear-gradient(180deg, #0A0A0A 0%, #1A1A1A 100%)',
-        }}
-      >
-        <Container maxWidth="lg" sx={{ py: 4 }}>
-          <Box display="flex" justifyContent="space-between" alignItems="center" mb={4}>
-            <Typography
-              variant="h4"
-              component="h1"
-              sx={{
-                fontWeight: 700,
-                background: 'linear-gradient(45deg, #FF6B6B 30%, #FF8E53 90%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-              }}
-            >
-              Manage Home Page Updates
-            </Typography>
-            <Button
-              variant="contained"
-              startIcon={<AddIcon />}
-              onClick={() => handleOpenDialog()}
-              sx={{
-                background: 'linear-gradient(45deg, #FF6B6B 30%, #FF8E53 90%)',
-                '&:hover': {
-                  background: 'linear-gradient(45deg, #FF8E53 30%, #FF6B6B 90%)',
-                },
-              }}
-              disabled={actionLoading}
-            >
-              Add Update
-            </Button>
-          </Box>
+    <>
+      <DynamicHeader />
+      <DynamicAdminLayout>
+        <Box
+          component="main"
+          sx={{
+            pt: 8,
+            minHeight: '100vh',
+            background: 'linear-gradient(180deg, #0A0A0A 0%, #1A1A1A 100%)',
+          }}
+        >
+          <Container maxWidth="lg" sx={{ py: 4 }}>
+            <Box display="flex" justifyContent="space-between" alignItems="center" mb={4}>
+              <Typography
+                variant="h4"
+                component="h1"
+                sx={{
+                  fontWeight: 700,
+                  background: 'linear-gradient(45deg, #FF6B6B 30%, #FF8E53 90%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                }}
+              >
+                Manage Home Page Updates
+              </Typography>
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                onClick={() => handleOpenDialog()}
+                sx={{
+                  background: 'linear-gradient(45deg, #FF6B6B 30%, #FF8E53 90%)',
+                  '&:hover': {
+                    background: 'linear-gradient(45deg, #FF8E53 30%, #FF6B6B 90%)',
+                  },
+                }}
+                disabled={actionLoading}
+              >
+                Add Update
+              </Button>
+            </Box>
 
-          {error && (
-            <Alert severity="error" sx={{ mb: 2 }}>
-              {error}
-            </Alert>
-          )}
+            {error && (
+              <Alert severity="error" sx={{ mb: 2 }}>
+                {error}
+              </Alert>
+            )}
 
-          <Box sx={{ mb: 4 }}>
-            <Tabs
-              value={filterType}
-              onChange={(_, newValue) => setFilterType(newValue)}
-              variant="scrollable"
-              scrollButtons="auto"
-              sx={{
-                mb: 2,
-                '& .MuiTab-root': {
-                  color: 'text.secondary',
-                },
-                '& .Mui-selected': {
-                  color: 'primary.main',
-                },
-              }}
-            >
-              <Tab 
-                label="All" 
-                value="all" 
-                sx={{ 
-                  display: 'flex', 
-                  flexDirection: isMobile ? 'column' : 'row',
-                  alignItems: 'center'
-                }} 
-              />
-              <Tab 
-                icon={<AnnouncementIcon />} 
-                label="Announcements" 
-                value="announcement" 
-                sx={{ 
-                  display: 'flex', 
-                  flexDirection: isMobile ? 'column' : 'row',
-                  alignItems: 'center'
-                }} 
-              />
-              <Tab 
-                icon={<NewsIcon />} 
-                label="News" 
-                value="news" 
-                sx={{ 
-                  display: 'flex', 
-                  flexDirection: isMobile ? 'column' : 'row',
-                  alignItems: 'center'
-                }} 
-              />
-              <Tab 
-                icon={<ImageIcon />} 
-                label="Images" 
-                value="image" 
-                sx={{ 
-                  display: 'flex', 
-                  flexDirection: isMobile ? 'column' : 'row',
-                  alignItems: 'center'
-                }} 
-              />
-              <Tab 
-                icon={<VideoIcon />} 
-                label="Videos" 
-                value="video" 
-                sx={{ 
-                  display: 'flex', 
-                  flexDirection: isMobile ? 'column' : 'row',
-                  alignItems: 'center'
-                }} 
-              />
-            </Tabs>
-          </Box>
+            <Box sx={{ mb: 4 }}>
+              <Tabs
+                value={filterType}
+                onChange={(_, newValue) => setFilterType(newValue)}
+                variant="scrollable"
+                scrollButtons="auto"
+                sx={{
+                  mb: 2,
+                  '& .MuiTab-root': {
+                    color: 'text.secondary',
+                  },
+                  '& .Mui-selected': {
+                    color: 'primary.main',
+                  },
+                }}
+              >
+                <Tab 
+                  label="All" 
+                  value="all" 
+                  sx={{ 
+                    display: 'flex', 
+                    flexDirection: isMobile ? 'column' : 'row',
+                    alignItems: 'center'
+                  }} 
+                />
+                <Tab 
+                  icon={<AnnouncementIcon />} 
+                  label="Announcements" 
+                  value="announcement" 
+                  sx={{ 
+                    display: 'flex', 
+                    flexDirection: isMobile ? 'column' : 'row',
+                    alignItems: 'center'
+                  }} 
+                />
+                <Tab 
+                  icon={<NewsIcon />} 
+                  label="News" 
+                  value="news" 
+                  sx={{ 
+                    display: 'flex', 
+                    flexDirection: isMobile ? 'column' : 'row',
+                    alignItems: 'center'
+                  }} 
+                />
+                <Tab 
+                  icon={<ImageIcon />} 
+                  label="Images" 
+                  value="image" 
+                  sx={{ 
+                    display: 'flex', 
+                    flexDirection: isMobile ? 'column' : 'row',
+                    alignItems: 'center'
+                  }} 
+                />
+                <Tab 
+                  icon={<VideoIcon />} 
+                  label="Videos" 
+                  value="video" 
+                  sx={{ 
+                    display: 'flex', 
+                    flexDirection: isMobile ? 'column' : 'row',
+                    alignItems: 'center'
+                  }} 
+                />
+              </Tabs>
+            </Box>
 
-          {getFilteredUpdates().length === 0 ? (
-            <Alert severity="info">
-              No {filterType === 'all' ? '' : filterType} updates found. Create a new update using the button above.
-            </Alert>
-          ) : (
-            <Grid container spacing={3}>
-              {getFilteredUpdates().map((update) => (
-                <Grid item xs={12} md={6} key={update._id}>
-                  <Paper
+            {getFilteredUpdates().length === 0 ? (
+              <Alert severity="info">
+                No {filterType === 'all' ? '' : filterType} updates found. Create a new update using the button above.
+              </Alert>
+            ) : (
+              <Grid container spacing={3}>
+                {getFilteredUpdates().map((update) => (
+                  <Grid item xs={12} md={6} key={update._id}>
+                    <Paper
+                      sx={{
+                        p: 3,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        height: '100%',
+                        position: 'relative',
+                        background: 'rgba(255, 255, 255, 0.05)',
+                        backdropFilter: 'blur(10px)',
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        transition: 'all 0.3s ease-in-out',
+                        opacity: update.isPublished ? 1 : 0.7,
+                        '&:hover': {
+                          transform: 'translateY(-5px)',
+                          boxShadow: '0 8px 30px rgba(0,0,0,0.3)',
+                        },
+                      }}
+                    >
+                      <Box display="flex" justifyContent="space-between" alignItems="flex-start">
+                        <Box display="flex" alignItems="center" gap={1}>
+                          {getTypeIcon(update.type)}
+                          <Typography variant="h6" component="h2">
+                            {update.title}
+                          </Typography>
+                        </Box>
+                        <Box>
+                          <IconButton 
+                            onClick={() => handleOpenDialog(update)} 
+                            sx={{ color: 'primary.main' }}
+                            disabled={actionLoading}
+                          >
+                            <EditIcon />
+                          </IconButton>
+                          <IconButton 
+                            onClick={() => update._id && handleDelete(update._id)} 
+                            sx={{ color: 'error.main' }}
+                            disabled={actionLoading}
+                          >
+                            <DeleteIcon />
+                          </IconButton>
+                        </Box>
+                      </Box>
+
+                      <Divider sx={{ my: 2 }} />
+
+                      <Typography variant="body1" paragraph>
+                        {update.content}
+                      </Typography>
+
+                      {update.type === 'image' && update.imageUrl && (
+                        <Box sx={{ mt: 2, mb: 2, textAlign: 'center' }}>
+                          <img 
+                            src={update.imageUrl} 
+                            alt={update.title} 
+                            style={{ 
+                              maxWidth: '100%', 
+                              maxHeight: '200px', 
+                              borderRadius: '4px',
+                              border: '1px solid rgba(255, 255, 255, 0.1)'
+                            }} 
+                          />
+                        </Box>
+                      )}
+
+                      {update.type === 'video' && update.videoUrl && (
+                        <Box sx={{ mt: 2, mb: 2, textAlign: 'center' }}>
+                          <iframe
+                            width="100%"
+                            height="200"
+                            src={update.videoUrl}
+                            title={update.title}
+                            frameBorder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                            style={{ borderRadius: '4px', border: '1px solid rgba(255, 255, 255, 0.1)' }}
+                          />
+                        </Box>
+                      )}
+
+                      <Box mt="auto" display="flex" justifyContent="space-between" alignItems="center">
+                        <Chip 
+                          label={update.type} 
+                          size="small" 
+                          color={update.isPublished ? "primary" : "default"}
+                        />
+                        <FormControlLabel
+                          control={
+                            <Switch
+                              checked={update.isPublished}
+                              onChange={() => handlePublishToggle(update)}
+                              color="primary"
+                            />
+                          }
+                          label={update.isPublished ? "Published" : "Draft"}
+                        />
+                      </Box>
+                      
+                      {update.createdAt && (
+                        <Typography
+                          variant="caption"
+                          color="text.secondary"
+                          sx={{ mt: 2, display: 'block' }}
+                        >
+                          Created: {new Date(update.createdAt).toLocaleString()}
+                        </Typography>
+                      )}
+                    </Paper>
+                  </Grid>
+                ))}
+              </Grid>
+            )}
+          </Container>
+        </Box>
+
+        <Dialog 
+          open={openDialog} 
+          onClose={handleCloseDialog} 
+          maxWidth="md" 
+          fullWidth
+          PaperProps={{
+            sx: {
+              background: 'rgba(255, 255, 255, 0.05)',
+              backdropFilter: 'blur(10px)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+            },
+          }}
+        >
+          <DialogTitle>{editingUpdate ? 'Edit Update' : 'Add Update'}</DialogTitle>
+          <form onSubmit={handleSubmit}>
+            <DialogContent>
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={8}>
+                  <TextField
+                    fullWidth
+                    label="Title"
+                    value={formData.title}
+                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                    required
+                    error={Boolean(formErrors.title)}
+                    helperText={formErrors.title}
                     sx={{
-                      p: 3,
-                      display: 'flex',
-                      flexDirection: 'column',
-                      height: '100%',
-                      position: 'relative',
-                      background: 'rgba(255, 255, 255, 0.05)',
-                      backdropFilter: 'blur(10px)',
-                      border: '1px solid rgba(255, 255, 255, 0.1)',
-                      transition: 'all 0.3s ease-in-out',
-                      opacity: update.isPublished ? 1 : 0.7,
-                      '&:hover': {
-                        transform: 'translateY(-5px)',
-                        boxShadow: '0 8px 30px rgba(0,0,0,0.3)',
+                      '& .MuiOutlinedInput-root': {
+                        '& fieldset': {
+                          borderColor: 'rgba(255, 255, 255, 0.1)',
+                        },
+                        '&:hover fieldset': {
+                          borderColor: 'rgba(255, 255, 255, 0.2)',
+                        },
+                      },
+                      '& .MuiInputLabel-root': {
+                        color: 'text.secondary',
                       },
                     }}
-                  >
-                    <Box display="flex" justifyContent="space-between" alignItems="flex-start">
-                      <Box display="flex" alignItems="center" gap={1}>
-                        {getTypeIcon(update.type)}
-                        <Typography variant="h6" component="h2">
-                          {update.title}
-                        </Typography>
-                      </Box>
-                      <Box>
-                        <IconButton 
-                          onClick={() => handleOpenDialog(update)} 
-                          sx={{ color: 'primary.main' }}
-                          disabled={actionLoading}
-                        >
-                          <EditIcon />
-                        </IconButton>
-                        <IconButton 
-                          onClick={() => update._id && handleDelete(update._id)} 
-                          sx={{ color: 'error.main' }}
-                          disabled={actionLoading}
-                        >
-                          <DeleteIcon />
-                        </IconButton>
-                      </Box>
-                    </Box>
-
-                    <Divider sx={{ my: 2 }} />
-
-                    <Typography variant="body1" paragraph>
-                      {update.content}
-                    </Typography>
-
-                    {update.type === 'image' && update.imageUrl && (
-                      <Box sx={{ mt: 2, mb: 2, textAlign: 'center' }}>
+                  />
+                </Grid>
+                <Grid item xs={12} sm={4}>
+                  <FormControl fullWidth>
+                    <InputLabel id="type-label">Type</InputLabel>
+                    <Select
+                      labelId="type-label"
+                      value={formData.type}
+                      label="Type"
+                      onChange={(e) => setFormData({ 
+                        ...formData, 
+                        type: e.target.value as HomeUpdate['type'] 
+                      })}
+                      sx={{
+                        '& .MuiOutlinedInput-root': {
+                          '& fieldset': {
+                            borderColor: 'rgba(255, 255, 255, 0.1)',
+                          },
+                          '&:hover fieldset': {
+                            borderColor: 'rgba(255, 255, 255, 0.2)',
+                          },
+                        },
+                      }}
+                    >
+                      <MenuItem value="announcement">Announcement</MenuItem>
+                      <MenuItem value="news">News</MenuItem>
+                      <MenuItem value="image">Image</MenuItem>
+                      <MenuItem value="video">Video</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    fullWidth
+                    label="Content"
+                    multiline
+                    rows={4}
+                    value={formData.content}
+                    onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+                    required
+                    error={Boolean(formErrors.content)}
+                    helperText={formErrors.content}
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        '& fieldset': {
+                          borderColor: 'rgba(255, 255, 255, 0.1)',
+                        },
+                        '&:hover fieldset': {
+                          borderColor: 'rgba(255, 255, 255, 0.2)',
+                        },
+                      },
+                      '& .MuiInputLabel-root': {
+                        color: 'text.secondary',
+                      },
+                    }}
+                  />
+                </Grid>
+                
+                {formData.type === 'image' && (
+                  <Grid item xs={12}>
+                    <TextField
+                      fullWidth
+                      label="Image URL"
+                      value={formData.imageUrl || ''}
+                      onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
+                      required
+                      error={Boolean(formErrors.imageUrl)}
+                      helperText={formErrors.imageUrl}
+                      sx={{
+                        '& .MuiOutlinedInput-root': {
+                          '& fieldset': {
+                            borderColor: 'rgba(255, 255, 255, 0.1)',
+                          },
+                          '&:hover fieldset': {
+                            borderColor: 'rgba(255, 255, 255, 0.2)',
+                          },
+                        },
+                        '& .MuiInputLabel-root': {
+                          color: 'text.secondary',
+                        },
+                      }}
+                    />
+                    {formData.imageUrl && (
+                      <Box sx={{ mt: 2, textAlign: 'center' }}>
                         <img 
-                          src={update.imageUrl} 
-                          alt={update.title} 
+                          src={formData.imageUrl} 
+                          alt="Preview" 
                           style={{ 
                             maxWidth: '100%', 
                             maxHeight: '200px', 
@@ -508,14 +711,40 @@ export default function HomeUpdates() {
                         />
                       </Box>
                     )}
-
-                    {update.type === 'video' && update.videoUrl && (
-                      <Box sx={{ mt: 2, mb: 2, textAlign: 'center' }}>
+                  </Grid>
+                )}
+                
+                {formData.type === 'video' && (
+                  <Grid item xs={12}>
+                    <TextField
+                      fullWidth
+                      label="Video URL (YouTube Embed)"
+                      value={formData.videoUrl || ''}
+                      onChange={(e) => setFormData({ ...formData, videoUrl: e.target.value })}
+                      required
+                      error={Boolean(formErrors.videoUrl)}
+                      helperText={formErrors.videoUrl || 'Enter YouTube embed URL (e.g., https://www.youtube.com/embed/VIDEO_ID)'}
+                      sx={{
+                        '& .MuiOutlinedInput-root': {
+                          '& fieldset': {
+                            borderColor: 'rgba(255, 255, 255, 0.1)',
+                          },
+                          '&:hover fieldset': {
+                            borderColor: 'rgba(255, 255, 255, 0.2)',
+                          },
+                        },
+                        '& .MuiInputLabel-root': {
+                          color: 'text.secondary',
+                        },
+                      }}
+                    />
+                    {formData.videoUrl && (
+                      <Box sx={{ mt: 2 }}>
                         <iframe
                           width="100%"
                           height="200"
-                          src={update.videoUrl}
-                          title={update.title}
+                          src={formData.videoUrl}
+                          title="Video Preview"
                           frameBorder="0"
                           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                           allowFullScreen
@@ -523,269 +752,61 @@ export default function HomeUpdates() {
                         />
                       </Box>
                     )}
-
-                    <Box mt="auto" display="flex" justifyContent="space-between" alignItems="center">
-                      <Chip 
-                        label={update.type} 
-                        size="small" 
-                        color={update.isPublished ? "primary" : "default"}
-                      />
-                      <FormControlLabel
-                        control={
-                          <Switch
-                            checked={update.isPublished}
-                            onChange={() => handlePublishToggle(update)}
-                            color="primary"
-                          />
-                        }
-                        label={update.isPublished ? "Published" : "Draft"}
-                      />
-                    </Box>
-                    
-                    {update.createdAt && (
-                      <Typography
-                        variant="caption"
-                        color="text.secondary"
-                        sx={{ mt: 2, display: 'block' }}
-                      >
-                        Created: {new Date(update.createdAt).toLocaleString()}
-                      </Typography>
-                    )}
-                  </Paper>
-                </Grid>
-              ))}
-            </Grid>
-          )}
-        </Container>
-      </Box>
-
-      <Dialog 
-        open={openDialog} 
-        onClose={handleCloseDialog} 
-        maxWidth="md" 
-        fullWidth
-        PaperProps={{
-          sx: {
-            background: 'rgba(255, 255, 255, 0.05)',
-            backdropFilter: 'blur(10px)',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
-          },
-        }}
-      >
-        <DialogTitle>{editingUpdate ? 'Edit Update' : 'Add Update'}</DialogTitle>
-        <form onSubmit={handleSubmit}>
-          <DialogContent>
-            <Grid container spacing={2}>
-              <Grid item xs={12} sm={8}>
-                <TextField
-                  fullWidth
-                  label="Title"
-                  value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  required
-                  error={Boolean(formErrors.title)}
-                  helperText={formErrors.title}
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      '& fieldset': {
-                        borderColor: 'rgba(255, 255, 255, 0.1)',
-                      },
-                      '&:hover fieldset': {
-                        borderColor: 'rgba(255, 255, 255, 0.2)',
-                      },
-                    },
-                    '& .MuiInputLabel-root': {
-                      color: 'text.secondary',
-                    },
-                  }}
-                />
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <FormControl fullWidth>
-                  <InputLabel id="type-label">Type</InputLabel>
-                  <Select
-                    labelId="type-label"
-                    value={formData.type}
-                    label="Type"
-                    onChange={(e) => setFormData({ 
-                      ...formData, 
-                      type: e.target.value as HomeUpdate['type'] 
-                    })}
-                    sx={{
-                      '& .MuiOutlinedInput-root': {
-                        '& fieldset': {
-                          borderColor: 'rgba(255, 255, 255, 0.1)',
-                        },
-                        '&:hover fieldset': {
-                          borderColor: 'rgba(255, 255, 255, 0.2)',
-                        },
-                      },
-                    }}
-                  >
-                    <MenuItem value="announcement">Announcement</MenuItem>
-                    <MenuItem value="news">News</MenuItem>
-                    <MenuItem value="image">Image</MenuItem>
-                    <MenuItem value="video">Video</MenuItem>
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  label="Content"
-                  multiline
-                  rows={4}
-                  value={formData.content}
-                  onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                  required
-                  error={Boolean(formErrors.content)}
-                  helperText={formErrors.content}
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      '& fieldset': {
-                        borderColor: 'rgba(255, 255, 255, 0.1)',
-                      },
-                      '&:hover fieldset': {
-                        borderColor: 'rgba(255, 255, 255, 0.2)',
-                      },
-                    },
-                    '& .MuiInputLabel-root': {
-                      color: 'text.secondary',
-                    },
-                  }}
-                />
-              </Grid>
-              
-              {formData.type === 'image' && (
+                  </Grid>
+                )}
+                
                 <Grid item xs={12}>
-                  <TextField
-                    fullWidth
-                    label="Image URL"
-                    value={formData.imageUrl || ''}
-                    onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-                    required
-                    error={Boolean(formErrors.imageUrl)}
-                    helperText={formErrors.imageUrl}
-                    sx={{
-                      '& .MuiOutlinedInput-root': {
-                        '& fieldset': {
-                          borderColor: 'rgba(255, 255, 255, 0.1)',
-                        },
-                        '&:hover fieldset': {
-                          borderColor: 'rgba(255, 255, 255, 0.2)',
-                        },
-                      },
-                      '& .MuiInputLabel-root': {
-                        color: 'text.secondary',
-                      },
-                    }}
-                  />
-                  {formData.imageUrl && (
-                    <Box sx={{ mt: 2, textAlign: 'center' }}>
-                      <img 
-                        src={formData.imageUrl} 
-                        alt="Preview" 
-                        style={{ 
-                          maxWidth: '100%', 
-                          maxHeight: '200px', 
-                          borderRadius: '4px',
-                          border: '1px solid rgba(255, 255, 255, 0.1)'
-                        }} 
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        checked={formData.isPublished}
+                        onChange={(e) => setFormData({ ...formData, isPublished: e.target.checked })}
+                        color="primary"
                       />
-                    </Box>
-                  )}
-                </Grid>
-              )}
-              
-              {formData.type === 'video' && (
-                <Grid item xs={12}>
-                  <TextField
-                    fullWidth
-                    label="Video URL (YouTube Embed)"
-                    value={formData.videoUrl || ''}
-                    onChange={(e) => setFormData({ ...formData, videoUrl: e.target.value })}
-                    required
-                    error={Boolean(formErrors.videoUrl)}
-                    helperText={formErrors.videoUrl || 'Enter YouTube embed URL (e.g., https://www.youtube.com/embed/VIDEO_ID)'}
-                    sx={{
-                      '& .MuiOutlinedInput-root': {
-                        '& fieldset': {
-                          borderColor: 'rgba(255, 255, 255, 0.1)',
-                        },
-                        '&:hover fieldset': {
-                          borderColor: 'rgba(255, 255, 255, 0.2)',
-                        },
-                      },
-                      '& .MuiInputLabel-root': {
-                        color: 'text.secondary',
-                      },
-                    }}
+                    }
+                    label="Publish immediately"
                   />
-                  {formData.videoUrl && (
-                    <Box sx={{ mt: 2 }}>
-                      <iframe
-                        width="100%"
-                        height="200"
-                        src={formData.videoUrl}
-                        title="Video Preview"
-                        frameBorder="0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                        style={{ borderRadius: '4px', border: '1px solid rgba(255, 255, 255, 0.1)' }}
-                      />
-                    </Box>
-                  )}
                 </Grid>
-              )}
-              
-              <Grid item xs={12}>
-                <FormControlLabel
-                  control={
-                    <Switch
-                      checked={formData.isPublished}
-                      onChange={(e) => setFormData({ ...formData, isPublished: e.target.checked })}
-                      color="primary"
-                    />
-                  }
-                  label="Publish immediately"
-                />
               </Grid>
-            </Grid>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleCloseDialog}>Cancel</Button>
-            <Button 
-              type="submit" 
-              variant="contained" 
-              disabled={actionLoading}
-              sx={{
-                background: 'linear-gradient(45deg, #FF6B6B 30%, #FF8E53 90%)',
-                '&:hover': {
-                  background: 'linear-gradient(45deg, #FF8E53 30%, #FF6B6B 90%)',
-                },
-              }}
-            >
-              {actionLoading ? <CircularProgress size={24} /> : (editingUpdate ? 'Update' : 'Add')}
-            </Button>
-          </DialogActions>
-        </form>
-      </Dialog>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleCloseDialog}>Cancel</Button>
+              <Button 
+                type="submit" 
+                variant="contained" 
+                disabled={actionLoading}
+                sx={{
+                  background: 'linear-gradient(45deg, #FF6B6B 30%, #FF8E53 90%)',
+                  '&:hover': {
+                    background: 'linear-gradient(45deg, #FF8E53 30%, #FF6B6B 90%)',
+                  },
+                }}
+              >
+                {actionLoading ? <CircularProgress size={24} /> : (editingUpdate ? 'Update' : 'Add')}
+              </Button>
+            </DialogActions>
+          </form>
+        </Dialog>
 
-      <Snackbar 
-        open={snackbar.open} 
-        autoHideDuration={6000} 
-        onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-      >
-        <Alert 
-          onClose={handleCloseSnackbar} 
-          severity={snackbar.severity}
-          variant="filled"
+        <Snackbar 
+          open={snackbar.open} 
+          autoHideDuration={6000} 
+          onClose={handleCloseSnackbar}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
         >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
-      <Footer />
-    </AdminLayout>
+          <Alert 
+            onClose={handleCloseSnackbar} 
+            severity={snackbar.severity}
+            variant="filled"
+          >
+            {snackbar.message}
+          </Alert>
+        </Snackbar>
+      </DynamicAdminLayout>
+      <DynamicFooter />
+    </>
   );
-} 
+}
+
+// Export the page with no SSR
+export default dynamic(() => Promise.resolve(HomeUpdatesContent), { ssr: false }); 
