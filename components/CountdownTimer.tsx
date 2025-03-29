@@ -2,12 +2,67 @@ import React, { useState, useEffect } from 'react';
 import { Box, Typography, Paper, Grid, useTheme, useMediaQuery } from '@mui/material';
 import { differenceInDays, differenceInHours, differenceInMinutes, differenceInSeconds } from 'date-fns';
 
+interface TimeLeft {
+  days: number;
+  hours: number;
+  minutes: number;
+  seconds: number;
+}
+
+interface TimeBoxProps {
+  value: number;
+  label: string;
+}
+
 interface CountdownTimerProps {
   targetDate: Date;
 }
 
-export default function CountdownTimer({ targetDate }: CountdownTimerProps) {
-  const [timeLeft, setTimeLeft] = useState({
+const TimeBox: React.FC<TimeBoxProps> = ({ value, label }) => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
+  return (
+    <Paper
+      elevation={3}
+      sx={{
+        p: { xs: 1.5, sm: 2 },
+        textAlign: 'center',
+        minWidth: { xs: 80, sm: 100 },
+        background: 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)',
+        color: 'white',
+        transition: 'transform 0.2s ease-in-out',
+        '&:hover': {
+          transform: 'translateY(-5px)',
+        },
+      }}
+    >
+      <Typography 
+        variant={isMobile ? "h5" : "h4"} 
+        component="div" 
+        fontWeight="bold"
+        sx={{ 
+          lineHeight: 1,
+          mb: { xs: 0.5, sm: 1 }
+        }}
+      >
+        {value.toString().padStart(2, '0')}
+      </Typography>
+      <Typography 
+        variant={isMobile ? "caption" : "body2"} 
+        sx={{ 
+          display: 'block',
+          opacity: 0.9
+        }}
+      >
+        {label}
+      </Typography>
+    </Paper>
+  );
+};
+
+const CountdownTimer: React.FC<CountdownTimerProps> = ({ targetDate }) => {
+  const [timeLeft, setTimeLeft] = useState<TimeLeft>({
     days: 0,
     hours: 0,
     minutes: 0,
@@ -39,49 +94,6 @@ export default function CountdownTimer({ targetDate }: CountdownTimerProps) {
     return () => clearInterval(timer);
   }, [targetDate]);
 
-  const TimeBox = ({ value, label }: { value: number; label: string }) => {
-    const theme = useTheme();
-    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-
-    return (
-      <Paper
-        elevation={3}
-        sx={{
-          p: { xs: 1.5, sm: 2 },
-          textAlign: 'center',
-          minWidth: { xs: 80, sm: 100 },
-          background: 'linear-gradient(45deg, #2196F3 30%, #21CBF3 90%)',
-          color: 'white',
-          transition: 'transform 0.2s ease-in-out',
-          '&:hover': {
-            transform: 'translateY(-5px)',
-          },
-        }}
-      >
-        <Typography 
-          variant={isMobile ? "h5" : "h4"} 
-          component="div" 
-          fontWeight="bold"
-          sx={{ 
-            lineHeight: 1,
-            mb: { xs: 0.5, sm: 1 }
-          }}
-        >
-          {value.toString().padStart(2, '0')}
-        </Typography>
-        <Typography 
-          variant={isMobile ? "caption" : "body2"} 
-          sx={{ 
-            display: 'block',
-            opacity: 0.9
-          }}
-        >
-          {label}
-        </Typography>
-      </Paper>
-    );
-  };
-
   return (
     <Box sx={{ my: { xs: 2, sm: 4 } }}>
       <Typography variant="h4" component="h2" gutterBottom textAlign="center">
@@ -103,4 +115,6 @@ export default function CountdownTimer({ targetDate }: CountdownTimerProps) {
       </Grid>
     </Box>
   );
-} 
+};
+
+export default CountdownTimer; 

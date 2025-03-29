@@ -3,15 +3,17 @@ import { Box, Paper, IconButton, Fade, Typography, Grid, useTheme, useMediaQuery
 import { ChevronLeft, ChevronRight } from '@mui/icons-material';
 import CountdownTimer from './CountdownTimer';
 
+interface Image {
+  src: string;
+  alt: string;
+}
+
 interface ImageSliderProps {
-  images?: {
-    src: string;
-    alt: string;
-  }[];
+  images?: Image[];
   eventDate?: Date;
 }
 
-const defaultImages = [
+const defaultImages: Image[] = [
   {
     src: '/images/rock1.png',
     alt: 'Concert Image 1'
@@ -26,8 +28,8 @@ const defaultImages = [
   }
 ];
 
-export default function ImageSlider({ images = defaultImages, eventDate }: ImageSliderProps) {
-  const [currentIndex, setCurrentIndex] = useState(0);
+const ImageSlider: React.FC<ImageSliderProps> = ({ images = defaultImages, eventDate }) => {
+  const [currentIndex, setCurrentIndex] = useState<number>(0);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
@@ -215,4 +217,6 @@ export default function ImageSlider({ images = defaultImages, eventDate }: Image
       </Grid>
     </Box>
   );
-} 
+};
+
+export default ImageSlider; 
