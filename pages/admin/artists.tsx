@@ -33,6 +33,7 @@ import {
   Edit as EditIcon,
   Delete as DeleteIcon,
   Image as ImageIcon,
+  CloudUpload as CloudUploadIcon,
 } from '@mui/icons-material';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
@@ -76,6 +77,8 @@ const ArtistsManagement = () => {
       facebook: '',
     },
   });
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -187,6 +190,57 @@ const ArtistsManagement = () => {
       }
     } catch (err) {
       setError('An error occurred while performing the action');
+    }
+  };
+
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      setError('Please upload an image file (JPEG, PNG, etc.)');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      setError('Image size should be less than 5MB');
+      return;
+    }
+
+    try {
+      setIsUploading(true);
+      setError(null);
+
+      // Convert file to base64
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        const base64Data = e.target?.result as string;
+
+        // Upload to Cloudinary
+        const response = await fetch('/api/upload', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ data: base64Data }),
+        });
+
+        const data = await response.json();
+        if (data.success) {
+          setFormData(prev => ({ ...prev, image: data.url }));
+          setImagePreview(data.url);
+        } else {
+          setError(data.message || 'Failed to upload image');
+        }
+      };
+      reader.readAsDataURL(file);
+    } catch (err) {
+      console.error('Error uploading image:', err);
+      setError('Failed to upload image. Please try again.');
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -499,25 +553,57 @@ const ArtistsManagement = () => {
                 />
               </Grid>
               <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  label="Image URL"
-                  value={formData.image}
-                  onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      '& fieldset': {
-                        borderColor: 'rgba(255, 255, 255, 0.1)',
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                  <Typography variant="subtitle1">Artist Image</Typography>
+                  <Box
+                    sx={{
+                      border: '2px dashed',
+                      borderColor: 'divider',
+                      borderRadius: 1,
+                      p: 3,
+                      textAlign: 'center',
+                      cursor: 'pointer',
+                      '&:hover': {
+                        borderColor: 'primary.main',
                       },
-                      '&:hover fieldset': {
-                        borderColor: 'rgba(255, 255, 255, 0.2)',
-                      },
-                    },
-                    '& .MuiInputLabel-root': {
-                      color: 'text.secondary',
-                    },
-                  }}
-                />
+                    }}
+                  >
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      style={{ display: 'none' }}
+                      id="artist-image-upload"
+                    />
+                    <label htmlFor="artist-image-upload">
+                      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
+                        <CloudUploadIcon sx={{ fontSize: 40, color: 'primary.main' }} />
+                        <Typography variant="body1">
+                          {imagePreview ? 'Change Image' : 'Click to upload image'}
+                        </Typography>
+                      </Box>
+                    </label>
+                  </Box>
+                  {imagePreview && (
+                    <Box sx={{ mt: 2 }}>
+                      <img
+                        src={imagePreview}
+                        alt="Preview"
+                        style={{
+                          maxWidth: '100%',
+                          maxHeight: '200px',
+                          borderRadius: '4px',
+                          objectFit: 'cover',
+                        }}
+                      />
+                    </Box>
+                  )}
+                  {isUploading && (
+                    <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+                      <CircularProgress size={24} />
+                    </Box>
+                  )}
+                </Box>
               </Grid>
               <Grid item xs={12} md={4}>
                 <TextField

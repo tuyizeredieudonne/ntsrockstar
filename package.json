@@ -9,34 +9,36 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "next": "13.4.12",
-    "react": "18.2.0",
-    "react-dom": "18.2.0",
     "@emotion/react": "11.11.1",
     "@emotion/styled": "11.11.0",
-    "@mui/material": "5.14.0",
     "@mui/icons-material": "5.14.0",
     "@mui/lab": "5.0.0-alpha.137",
+    "@mui/material": "5.14.0",
+    "@types/nodemailer": "^6.4.17",
+    "bcryptjs": "2.4.3",
+    "cloudinary": "1.37.3",
+    "date-fns": "2.30.0",
+    "formik": "2.4.2",
     "mongodb": "5.7.0",
     "mongoose": "7.4.0",
-    "next-auth": "4.22.3",
-    "bcryptjs": "2.4.3",
-    "formik": "2.4.2",
-    "yup": "1.2.0",
     "multer": "1.4.5-lts.1",
+    "next": "13.4.12",
+    "next-auth": "4.22.3",
     "next-connect": "1.0.0",
-    "cloudinary": "1.37.3",
+    "nodemailer": "^6.10.0",
+    "react": "18.2.0",
     "react-countdown": "2.3.5",
-    "date-fns": "2.30.0",
-    "react-player": "2.12.0"
+    "react-dom": "18.2.0",
+    "react-player": "2.12.0",
+    "yup": "1.2.0"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.2",
     "@types/node": "^20.4.5",
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
-    "@types/bcryptjs": "^2.4.2",
-    "typescript": "^5.1.6",
     "eslint": "8.45.0",
-    "eslint-config-next": "13.4.12"
+    "eslint-config-next": "13.4.12",
+    "typescript": "^5.1.6"
   }
-} 
+}

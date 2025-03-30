@@ -3,10 +3,10 @@ import bcrypt from 'bcryptjs';
 import { IUser } from '../types';
 
 const UserSchema = new mongoose.Schema({
-  name: {
+  fullName: {
     type: String,
-    required: [true, 'Please provide a name'],
-    maxlength: [60, 'Name cannot be more than 60 characters'],
+    required: [true, 'Please provide your full name'],
+    maxlength: [100, 'Name cannot be more than 100 characters'],
   },
   email: {
     type: String,
@@ -16,13 +16,26 @@ const UserSchema = new mongoose.Schema({
   password: {
     type: String,
     required: [true, 'Please provide a password'],
-    minlength: [6, 'Password must be at least 6 characters'],
+    minlength: [8, 'Password must be at least 8 characters'],
   },
   role: {
     type: String,
     enum: ['user', 'admin'],
     default: 'user',
   },
+  studentLevel: {
+    type: String,
+    required: false,
+  },
+  trade: {
+    type: String,
+    required: false,
+  },
+  phoneNumber: {
+    type: String,
+    required: [true, 'Phone number is required'],
+    match: [/^[0-9+]{10,12}$/, 'Please enter a valid phone number'],
+  }
 }, {
   timestamps: true,
 });
@@ -35,9 +48,6 @@ UserSchema.pre('save', async function (next) {
   }
   
   try {
-    if (!this.password) {
-      throw new Error('Password is required');
-    }
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(this.password, salt);
     this.password = hashedPassword;
@@ -49,9 +59,6 @@ UserSchema.pre('save', async function (next) {
 
 // Compare entered password with stored hash
 UserSchema.methods.comparePassword = async function (enteredPassword: string) {
-  if (!this.password) {
-    throw new Error('Password is not set');
-  }
   return await bcrypt.compare(enteredPassword, this.password);
 };
 

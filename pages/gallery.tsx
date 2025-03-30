@@ -40,7 +40,7 @@ const galleryImages: GalleryImage[] = [
     url: '/images/event1.jpeg',
     title: 'Live Performance',
     category: 'concert',
-    description: 'Amazing live performance at NTS Rockstar Party 2024',
+    description: 'Amazing live performance at NTS Rockstar Party 2025',
   },
   {
     id: '2',

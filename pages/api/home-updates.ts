@@ -19,7 +19,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       {
         _id: '2',
         title: 'New Artist Announcement',
-        content: 'We are excited to announce that [Artist Name] will be performing at the event!',
+        content: 'We are excited to announce that ZEO TRAP & DIEZ DOLLA will be performing at the event!',
         type: 'news',
         isPublished: true,
         createdAt: new Date().toISOString(),

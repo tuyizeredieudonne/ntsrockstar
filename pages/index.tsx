@@ -43,6 +43,7 @@ import {
   MusicNote,
   EmojiEvents,
   TrendingUp,
+  CheckCircle,
 } from '@mui/icons-material';
 import CountdownTimer from '../components/CountdownTimer';
 import ImageSlider from '../components/ImageSlider';
@@ -557,14 +558,69 @@ export default function Home() {
                       Ticket Information
                     </Typography>
                     <Box sx={{ my: 2 }}>
-                      <Typography variant="body1" gutterBottom>
-                        <strong>Regular Price:</strong> {eventDetails?.ticketTypes?.[0]?.price ?? 1000} RWF
-                      </Typography>
-                      {eventDetails?.ticketTypes?.[0]?.discountPrice && (
-                        <Typography variant="body1" color="error">
-                          <strong>Early Bird Price:</strong> {eventDetails.ticketTypes[0].discountPrice} RWF
-                        </Typography>
-                      )}
+                      <Grid container spacing={3}>
+                        {eventDetails.ticketTypes.map((ticket, index) => {
+                          const isDiscounted = new Date() < new Date(ticket.discountEndTime);
+                          const currentPrice = isDiscounted ? ticket.discountPrice : ticket.price;
+                          
+                          return (
+                            <Grid item xs={12} sm={6} key={index}>
+                              <Paper
+                                elevation={2}
+                                sx={{
+                                  p: 3,
+                                  height: '100%',
+                                  background: alpha(theme.palette.background.paper, 0.5),
+                                  backdropFilter: 'blur(10px)',
+                                  border: `1px solid ${alpha(theme.palette.common.white, 0.1)}`,
+                                  transition: 'all 0.3s ease-in-out',
+                                  '&:hover': {
+                                    transform: 'translateY(-5px)',
+                                    background: alpha(theme.palette.background.paper, 0.8),
+                                    boxShadow: '0 8px 30px rgba(0,0,0,0.3)',
+                                  }
+                                }}
+                              >
+                                <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
+                                  {ticket.name}
+                                </Typography>
+                                <Typography variant="body1" color="text.secondary" paragraph>
+                                  {ticket.description}
+                                </Typography>
+                                
+                                <Box sx={{ mb: 2 }}>
+                                  <Typography variant="h5" component="div" sx={{ fontWeight: 700 }}>
+                                    {currentPrice} RWF
+                                  </Typography>
+                                  {isDiscounted && (
+                                    <Typography variant="body2" color="error" sx={{ mt: 1 }}>
+                                      Early Bird Price! Save {ticket.price - ticket.discountPrice} RWF
+                                    </Typography>
+                                  )}
+                                </Box>
+
+                                <Stack spacing={1}>
+                                  {ticket.features.map((feature, idx) => (
+                                    <Box key={idx} sx={{ display: 'flex', alignItems: 'center' }}>
+                                      <CheckCircle sx={{ fontSize: 20, color: 'primary.main', mr: 1 }} />
+                                      <Typography variant="body2">{feature}</Typography>
+                                    </Box>
+                                  ))}
+                                </Stack>
+
+                                {isDiscounted && (
+                                  <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', color: 'error.main' }}>
+                                    <AccessTime sx={{ fontSize: 16, mr: 1 }} />
+                                    <Typography variant="body2">
+                                      Early bird discount ends {format(new Date(ticket.discountEndTime), 'MMM d, yyyy')}
+                                    </Typography>
+                                  </Box>
+                                )}
+                              </Paper>
+                            </Grid>
+                          );
+                        })}
+                      </Grid>
                     </Box>
                   </Paper>
                 </Zoom>
@@ -742,19 +798,19 @@ export default function Home() {
             <Grid container spacing={4}>
               {[
                 {
-                  name: 'John Doe',
+                  name: 'JD',
                   avatar: '/images/avatars/avatar1.jpg',
                   rating: 5,
                   comment: 'The best music event I\'ve ever attended! The energy was incredible.',
                 },
                 {
-                  name: 'Jane Smith',
+                  name: 'Dieme',
                   avatar: '/images/avatars/avatar2.jpg',
                   rating: 5,
                   comment: 'Amazing performances and great organization. Can\'t wait for the next one!',
                 },
                 {
-                  name: 'Mike Johnson',
+                  name: 'Saha mara',
                   avatar: '/images/avatars/avatar3.jpg',
                   rating: 5,
                   comment: 'The atmosphere was electric! The artists were phenomenal.',
@@ -890,56 +946,79 @@ export default function Home() {
                         height: '100%',
                         display: 'flex',
                         flexDirection: 'column',
-                        background: 'rgba(255, 255, 255, 0.03)',
+                        background: alpha(theme.palette.background.paper, 0.5),
                         backdropFilter: 'blur(10px)',
-                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        border: `1px solid ${alpha(theme.palette.common.white, 0.1)}`,
                         transition: 'all 0.3s ease-in-out',
                         '&:hover': {
                           transform: 'translateY(-5px)',
                           boxShadow: '0 8px 30px rgba(0,0,0,0.3)',
+                          background: alpha(theme.palette.background.paper, 0.8),
                         },
                       }}
                     >
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-                        <Chip 
-                          label={update.type.charAt(0).toUpperCase() + update.type.slice(1)} 
-                          color={
-                            update.type === 'announcement' ? 'error' :
-                            update.type === 'news' ? 'primary' :
-                            update.type === 'image' ? 'success' : 'secondary'
-                          }
-                          size="small"
-                        />
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <Chip 
+                            label={update.type.charAt(0).toUpperCase() + update.type.slice(1)} 
+                            color={
+                              update.type === 'announcement' ? 'error' :
+                              update.type === 'news' ? 'primary' :
+                              update.type === 'image' ? 'success' : 'secondary'
+                            }
+                            size="small"
+                            sx={{ mr: 1 }}
+                          />
+                          <Typography variant="h6" component="h3" sx={{ fontWeight: 600 }}>
+                            {update.title}
+                          </Typography>
+                        </Box>
                         <Typography variant="caption" color="text.secondary">
                           {new Date(update.createdAt).toLocaleDateString()}
                         </Typography>
                       </Box>
                       
-                      <Typography variant="h6" gutterBottom>
-                        {update.title}
-                      </Typography>
-                      
-                      <Typography variant="body2" sx={{ mb: 3 }}>
+                      <Typography variant="body1" sx={{ mb: 3, flexGrow: 1 }}>
                         {update.content}
                       </Typography>
                       
                       {update.type === 'image' && update.imageUrl && (
-                        <Box sx={{ mt: 'auto', mb: 2, textAlign: 'center' }}>
+                        <Box sx={{ 
+                          mt: 'auto', 
+                          mb: 2, 
+                          textAlign: 'center',
+                          position: 'relative',
+                          paddingTop: '56.25%', // 16:9 aspect ratio
+                          overflow: 'hidden',
+                          borderRadius: 1,
+                          border: `1px solid ${alpha(theme.palette.common.white, 0.1)}`,
+                        }}>
                           <img 
                             src={update.imageUrl} 
-                            alt={update.title.toString()} 
+                            alt={update.title} 
                             style={{ 
-                              maxWidth: '100%', 
-                              maxHeight: '300px', 
-                              borderRadius: '4px',
-                              border: '1px solid rgba(255, 255, 255, 0.1)'
+                              position: 'absolute',
+                              top: 0,
+                              left: 0,
+                              width: '100%',
+                              height: '100%',
+                              objectFit: 'cover',
                             }} 
                           />
                         </Box>
                       )}
                       
                       {update.type === 'video' && update.videoUrl && (
-                        <Box sx={{ mt: 'auto', mb: 2, textAlign: 'center', position: 'relative', paddingTop: '56.25%' }}>
+                        <Box sx={{ 
+                          mt: 'auto', 
+                          mb: 2, 
+                          textAlign: 'center',
+                          position: 'relative',
+                          paddingTop: '56.25%', // 16:9 aspect ratio
+                          borderRadius: 1,
+                          border: `1px solid ${alpha(theme.palette.common.white, 0.1)}`,
+                          overflow: 'hidden',
+                        }}>
                           <iframe
                             style={{ 
                               position: 'absolute',
@@ -947,11 +1026,9 @@ export default function Home() {
                               left: 0,
                               width: '100%',
                               height: '100%',
-                              borderRadius: '4px',
-                              border: '1px solid rgba(255, 255, 255, 0.1)'
                             }}
                             src={update.videoUrl}
-                            title={update.title.toString()}
+                            title={update.title}
                             frameBorder="0"
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                             allowFullScreen

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Paper, IconButton, Fade, Typography, Grid, useTheme, useMediaQuery } from '@mui/material';
+import { Box, Paper, IconButton, Typography, Grid, useTheme, useMediaQuery, alpha } from '@mui/material';
 import { ChevronLeft, ChevronRight } from '@mui/icons-material';
 import CountdownTimer from './CountdownTimer';
+import Image from 'next/image';
 
 interface Image {
   src: string;
@@ -30,6 +31,7 @@ const defaultImages: Image[] = [
 
 const ImageSlider: React.FC<ImageSliderProps> = ({ images = defaultImages, eventDate }) => {
   const [currentIndex, setCurrentIndex] = useState<number>(0);
+  const [isTransitioning, setIsTransitioning] = useState<boolean>(false);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
@@ -37,20 +39,28 @@ const ImageSlider: React.FC<ImageSliderProps> = ({ images = defaultImages, event
     if (!images || images.length === 0) return;
 
     const timer = setInterval(() => {
-      setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
+      if (!isTransitioning) {
+        handleNext();
+      }
     }, 5000);
 
     return () => clearInterval(timer);
-  }, [images]);
+  }, [images, isTransitioning]);
+
+  const handleTransition = (index: number) => {
+    setIsTransitioning(true);
+    setCurrentIndex(index);
+    setTimeout(() => setIsTransitioning(false), 500);
+  };
 
   const handlePrevious = () => {
-    if (!images || images.length === 0) return;
-    setCurrentIndex((prevIndex) => (prevIndex - 1 + images.length) % images.length);
+    if (!images || images.length === 0 || isTransitioning) return;
+    handleTransition((currentIndex - 1 + images.length) % images.length);
   };
 
   const handleNext = () => {
-    if (!images || images.length === 0) return;
-    setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
+    if (!images || images.length === 0 || isTransitioning) return;
+    handleTransition((currentIndex + 1) % images.length);
   };
 
   if (!images || images.length === 0) {
@@ -90,18 +100,41 @@ const ImageSlider: React.FC<ImageSliderProps> = ({ images = defaultImages, event
       <Grid container spacing={{ xs: 2, md: 0 }} sx={{ height: '100%' }}>
         {/* Left side - Image Slider */}
         <Grid item xs={12} md={7} sx={{ height: { xs: '300px', md: '100%' } }}>
-          <Fade in={true} timeout={1000}>
-            <Box
-              component="img"
-              src={images[currentIndex].src}
-              alt={images[currentIndex].alt}
-              sx={{
-                width: '100%',
-                height: '100%',
-                objectFit: 'cover',
-              }}
-            />
-          </Fade>
+          <Box
+            sx={{
+              position: 'relative',
+              width: '100%',
+              height: '100%',
+              overflow: 'hidden',
+            }}
+          >
+            {images.map((image, index) => (
+              <Box
+                key={index}
+                sx={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  height: '100%',
+                  opacity: index === currentIndex ? 1 : 0,
+                  transform: `translateX(${index === currentIndex ? '0' : index < currentIndex ? '-100%' : '100%'})`,
+                  transition: 'all 0.5s ease-in-out',
+                }}
+              >
+                <Image
+                  src={image.src}
+                  alt={image.alt}
+                  fill
+                  style={{
+                    objectFit: 'cover',
+                  }}
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  priority={index === 0}
+                />
+              </Box>
+            ))}
+          </Box>
 
           {/* Navigation Buttons */}
           <IconButton
@@ -111,9 +144,9 @@ const ImageSlider: React.FC<ImageSliderProps> = ({ images = defaultImages, event
               left: 8,
               top: '50%',
               transform: 'translateY(-50%)',
-              bgcolor: 'rgba(255, 255, 255, 0.8)',
+              bgcolor: alpha(theme.palette.common.white, 0.8),
               '&:hover': {
-                bgcolor: 'rgba(255, 255, 255, 0.9)',
+                bgcolor: alpha(theme.palette.common.white, 0.9),
               },
               zIndex: 2,
             }}
@@ -127,9 +160,9 @@ const ImageSlider: React.FC<ImageSliderProps> = ({ images = defaultImages, event
               right: 8,
               top: '50%',
               transform: 'translateY(-50%)',
-              bgcolor: 'rgba(255, 255, 255, 0.8)',
+              bgcolor: alpha(theme.palette.common.white, 0.8),
               '&:hover': {
-                bgcolor: 'rgba(255, 255, 255, 0.9)',
+                bgcolor: alpha(theme.palette.common.white, 0.9),
               },
               zIndex: 2,
             }}
@@ -152,25 +185,25 @@ const ImageSlider: React.FC<ImageSliderProps> = ({ images = defaultImages, event
             {images.map((_, index) => (
               <Box
                 key={index}
+                onClick={() => handleTransition(index)}
                 sx={{
                   width: 8,
                   height: 8,
                   borderRadius: '50%',
-                  bgcolor: index === currentIndex ? 'primary.main' : 'rgba(255, 255, 255, 0.5)',
+                  bgcolor: index === currentIndex ? 'primary.main' : alpha(theme.palette.common.white, 0.5),
                   cursor: 'pointer',
-                  transition: 'background-color 0.3s',
+                  transition: 'all 0.3s ease-in-out',
                   '&:hover': {
-                    bgcolor: index === currentIndex ? 'primary.main' : 'rgba(255, 255, 255, 0.8)',
+                    bgcolor: index === currentIndex ? 'primary.main' : alpha(theme.palette.common.white, 0.8),
                   },
                 }}
-                onClick={() => setCurrentIndex(index)}
               />
             ))}
           </Box>
         </Grid>
 
         {/* Right side - Countdown Timer */}
-        <Grid 
+        <Grid
           item 
           xs={12} 
           md={5} 

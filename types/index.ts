@@ -38,10 +38,13 @@ export interface IHomeUpdate {
 }
 
 export interface IUser {
-  name: string;
+  fullName: string;
   email: string;
   password: string;
   role: 'user' | 'admin';
+  studentLevel?: string;
+  trade?: string;
+  phoneNumber: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -49,7 +52,10 @@ export interface IUser {
 export interface ITicketType {
   name: string;
   price: number;
+  discountPrice: number;
   description: string;
+  features: string[];
+  discountEndTime: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -61,7 +67,8 @@ export interface IBooking {
   quantity: number;
   totalAmount: number;
   status: 'pending' | 'confirmed' | 'cancelled';
-  transactionId: string;
+  momoTransactionId: string;
+  paymentScreenshot: string;
   createdAt: Date;
   updatedAt: Date;
 } 

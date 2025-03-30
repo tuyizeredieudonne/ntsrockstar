@@ -31,6 +31,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const responseData = {
       ...eventDetails.toObject(),
       ticketTypes: ticketTypes.map(type => ({
+        _id: type._id,
         name: type.name,
         price: type.price,
         discountPrice: type.discountPrice,

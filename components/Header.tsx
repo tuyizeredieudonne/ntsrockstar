@@ -183,10 +183,48 @@ const Header: React.FC = () => {
                     sx={{
                       py: 1.5,
                       px: 2,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 2,
+                      '&:hover': {
+                        background: alpha(theme.palette.primary.main, 0.1),
+                        transform: 'translateX(5px)',
+                      },
+                      transition: 'all 0.2s ease-in-out',
+                    }}
+                  >
+                    {item.icon}
+                    {item.label}
+                  </MenuItem>
+                ))}
+                {session?.user?.role === 'admin' && [
+                  <Divider key="admin-divider" sx={{ my: 1, borderColor: alpha(theme.palette.common.white, 0.1) }} />,
+                  <Typography
+                    key="admin-title"
+                    variant="caption"
+                    sx={{
+                      px: 2,
+                      py: 1,
+                      color: 'text.secondary',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 1,
+                    }}
+                  >
+                    <AdminPanelSettingsIcon fontSize="small" />
+                    Admin Panel
+                  </Typography>,
+                  ...adminMenuItems.map((item) => (
+                    <MenuItem 
+                      key={item.path}
+                      onClick={() => handleNavigation(item.path)}
+                      sx={{
+                        py: 1.5,
+                        px: 4,
                         display: 'flex',
                         alignItems: 'center',
                         gap: 2,
-                      '&:hover': {
+                        '&:hover': {
                           background: alpha(theme.palette.primary.main, 0.1),
                           transform: 'translateX(5px)',
                         },
@@ -194,49 +232,10 @@ const Header: React.FC = () => {
                       }}
                     >
                       {item.icon}
-                    {item.label}
-                  </MenuItem>
-                ))}
-                {session?.user?.role === 'admin' && (
-                  <>
-                    <Divider sx={{ my: 1, borderColor: alpha(theme.palette.common.white, 0.1) }} />
-                    <Typography
-                      variant="caption"
-                      sx={{
-                        px: 2,
-                        py: 1,
-                        color: 'text.secondary',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 1,
-                      }}
-                    >
-                      <AdminPanelSettingsIcon fontSize="small" />
-                      Admin Panel
-                    </Typography>
-                    {adminMenuItems.map((item) => (
-                      <MenuItem 
-                        key={item.path}
-                        onClick={() => handleNavigation(item.path)}
-                        sx={{
-                          py: 1.5,
-                          px: 4,
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 2,
-                          '&:hover': {
-                            background: alpha(theme.palette.primary.main, 0.1),
-                            transform: 'translateX(5px)',
-                          },
-                          transition: 'all 0.2s ease-in-out',
-                        }}
-                      >
-                        {item.icon}
-                        {item.label}
-                      </MenuItem>
-                    ))}
-                  </>
-                )}
+                      {item.label}
+                    </MenuItem>
+                  ))
+                ]}
                 <Divider sx={{ my: 1, borderColor: alpha(theme.palette.common.white, 0.1) }} />
                 {session ? (
                   <MenuItem 

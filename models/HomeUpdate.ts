@@ -1,18 +1,36 @@
 import mongoose from 'mongoose';
-import { IHomeUpdate } from '../types';
 
 const HomeUpdateSchema = new mongoose.Schema({
   title: {
     type: String,
     required: true,
+    trim: true,
   },
   content: {
     type: String,
     required: true,
+    trim: true,
   },
-  image: {
+  type: {
     type: String,
     required: true,
+    enum: ['announcement', 'news', 'image', 'video'],
+  },
+  imageUrl: {
+    type: String,
+    required: function() {
+      return this.type === 'image';
+    },
+  },
+  videoUrl: {
+    type: String,
+    required: function() {
+      return this.type === 'video';
+    },
+  },
+  isPublished: {
+    type: Boolean,
+    default: true,
   },
 }, {
   timestamps: true,
@@ -20,5 +38,6 @@ const HomeUpdateSchema = new mongoose.Schema({
 
 // Add index for better query performance
 HomeUpdateSchema.index({ createdAt: -1 });
+HomeUpdateSchema.index({ isPublished: 1 });
 
-export default mongoose.models.HomeUpdate || mongoose.model<IHomeUpdate>('HomeUpdate', HomeUpdateSchema); 
+export default mongoose.models.HomeUpdate || mongoose.model('HomeUpdate', HomeUpdateSchema); 

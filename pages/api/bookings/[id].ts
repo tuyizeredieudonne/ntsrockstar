@@ -3,24 +3,25 @@ import dbConnect from '@/lib/mongodb';
 import Booking from '@/models/Booking';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '../auth/[...nextauth]';
+import TicketType from '@/models/TicketType';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const { method, query: { id } } = req;
+  const session = await getServerSession(req, res, authOptions);
+
+  if (!session || session.user.role !== 'admin') {
+    return res.status(401).json({ success: false, message: 'Unauthorized' });
+  }
 
   await dbConnect();
 
-  // Check admin authentication for all methods except GET
-  if (method !== 'GET') {
-    const session = await getServerSession(req, res, authOptions);
-    if (!session || session.user.role !== 'admin') {
-      return res.status(401).json({ success: false, message: 'Unauthorized' });
-    }
-  }
+  const { id } = req.query;
 
-  switch (method) {
+  switch (req.method) {
     case 'GET':
       try {
-        const booking = await Booking.findById(id);
+        const booking = await Booking.findById(id)
+          .populate('ticketType')
+          .select('-__v');
         
         if (!booking) {
           return res.status(404).json({ success: false, message: 'Booking not found' });
@@ -32,18 +33,66 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
     case 'PUT':
       try {
-        const booking = await Booking.findByIdAndUpdate(id, req.body, {
-          new: true,
-          runValidators: true,
-        });
-        
+        const { status } = req.body;
+
+        // Get the current booking
+        const booking = await Booking.findById(id);
         if (!booking) {
-          return res.status(404).json({ success: false, message: 'Booking not found' });
+          return res.status(404).json({
+            success: false,
+            message: 'Booking not found',
+          });
         }
-        
-        return res.status(200).json({ success: true, data: booking });
+
+        // Get the ticket type
+        const ticketType = await TicketType.findById(booking.ticketType);
+        if (!ticketType) {
+          return res.status(404).json({
+            success: false,
+            message: 'Ticket type not found',
+          });
+        }
+
+        // Handle status changes
+        if (status === 'confirmed' && booking.status === 'pending') {
+          // Check if tickets are still available
+          if (ticketType.isSoldOut) {
+            return res.status(400).json({
+              success: false,
+              message: 'Cannot confirm booking: tickets are sold out',
+            });
+          }
+
+          // Update sold tickets count
+          ticketType.soldTickets += 1;
+          await ticketType.save();
+        } else if (status === 'cancelled' && booking.status === 'confirmed') {
+          // Refund the sold ticket count
+          ticketType.soldTickets = Math.max(0, ticketType.soldTickets - 1);
+          await ticketType.save();
+        }
+
+        // Update booking status
+        const updatedBooking = await Booking.findByIdAndUpdate(
+          id,
+          { status },
+          { new: true }
+        ).populate([
+          { path: 'user', select: 'name email' },
+          { path: 'event', select: 'title date venue' },
+          { path: 'ticketType', select: 'name price' }
+        ]);
+
+        return res.status(200).json({
+          success: true,
+          data: updatedBooking,
+        });
       } catch (error) {
-        return res.status(400).json({ success: false, error });
+        console.error('Error updating booking:', error);
+        return res.status(500).json({
+          success: false,
+          message: 'Error updating booking',
+        });
       }
     case 'DELETE':
       try {
@@ -58,6 +107,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(400).json({ success: false, error });
       }
     default:
-      return res.status(400).json({ success: false, message: 'Method not allowed' });
+      return res.status(405).json({
+        success: false,
+        message: 'Method not allowed',
+      });
   }
 } 

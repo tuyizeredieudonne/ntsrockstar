@@ -10,14 +10,26 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   switch (req.method) {
     case 'GET':
       try {
-        const homeUpdates = await HomeUpdate.find({})
+        // For non-admin users, only show published updates
+        const filter = !session || session.user?.role !== 'admin' ? { isPublished: true } : {};
+        
+        const homeUpdates = await HomeUpdate.find(filter)
           .sort({ createdAt: -1 })
-          .limit(6);
-        res.status(200).json({ success: true, data: homeUpdates });
+          .limit(6) // Limit to 6 most recent updates
+          .select('-__v');
+
+        return res.status(200).json({
+          success: true,
+          data: homeUpdates,
+        });
       } catch (error) {
-        res.status(400).json({ success: false, error });
+        console.error('Error fetching home updates:', error);
+        return res.status(500).json({
+          success: false,
+          message: 'Error fetching home updates',
+          error: error instanceof Error ? error.message : 'Unknown error'
+        });
       }
-      break;
 
     case 'POST':
       // Only admin can post updates
@@ -27,14 +39,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       try {
         const homeUpdate = await HomeUpdate.create(req.body);
-        res.status(201).json({ success: true, data: homeUpdate });
+        return res.status(201).json({ success: true, data: homeUpdate });
       } catch (error) {
-        res.status(400).json({ success: false, error });
+        console.error('Error creating home update:', error);
+        return res.status(400).json({ 
+          success: false, 
+          message: 'Error creating home update',
+          error: error instanceof Error ? error.message : 'Unknown error'
+        });
       }
-      break;
 
     default:
-      res.status(405).json({ success: false, message: 'Method not allowed' });
-      break;
+      res.setHeader('Allow', ['GET', 'POST']);
+      return res.status(405).json({ success: false, message: `Method ${req.method} Not Allowed` });
   }
 } 
