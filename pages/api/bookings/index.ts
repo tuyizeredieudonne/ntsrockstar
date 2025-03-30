@@ -144,7 +144,7 @@ async function parseMultipartForm(req: NextApiRequest) {
         
         // Log all received data
         console.log('Received form data:', data);
-        resolve(data);
+          resolve(data);
       } catch (err) {
         console.error('Error parsing multipart form data:', err);
         reject(err);
@@ -190,7 +190,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           phoneNumber: booking.user?.phoneNumber || 'N/A',
           studentLevel: booking.user?.studentLevel || 'N/A',
           trade: booking.user?.trade || 'N/A',
+          event: {
+            _id: booking.event?._id || 'N/A',
+            name: booking.event?.name || 'N/A',
+            date: booking.event?.date || new Date().toISOString(),
+            location: booking.event?.location || 'N/A'
+          },
           ticketType: {
+            _id: booking.ticketType?._id || 'N/A',
             name: booking.ticketType?.name || 'N/A',
             price: booking.ticketType?.price || 0,
             discountPrice: booking.ticketType?.discountPrice || 0,

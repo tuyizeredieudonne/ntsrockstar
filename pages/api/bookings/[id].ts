@@ -2,8 +2,9 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import dbConnect from '@/lib/mongodb';
 import Booking from '@/models/Booking';
 import { getServerSession } from 'next-auth/next';
-import { authOptions } from '../auth/[...nextauth]';
+import { authOptions } from '@/pages/api/auth/[...nextauth]';
 import TicketType from '@/models/TicketType';
+import { sendEmail, generateBookingConfirmationEmail } from '@/lib/email';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const session = await getServerSession(req, res, authOptions);
@@ -21,6 +22,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       try {
         const booking = await Booking.findById(id)
           .populate('ticketType')
+          .populate('user', 'email fullName')
           .select('-__v');
         
         if (!booking) {
@@ -31,12 +33,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       } catch (error) {
         return res.status(400).json({ success: false, error });
       }
+
     case 'PUT':
       try {
         const { status } = req.body;
 
-        // Get the current booking
-        const booking = await Booking.findById(id);
+        // Get the current booking with populated user data
+        const booking = await Booking.findById(id)
+          .populate('ticketType')
+          .populate('user', 'email fullName');
+
         if (!booking) {
           return res.status(404).json({
             success: false,
@@ -64,11 +70,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           }
 
           // Update sold tickets count
-          ticketType.soldTickets += 1;
+          ticketType.soldTickets += booking.quantity;
           await ticketType.save();
+
+          // Send confirmation email
+          const { subject, html } = generateBookingConfirmationEmail(booking);
+          await sendEmail({
+            to: booking.user.email,
+            subject,
+            html,
+          });
         } else if (status === 'cancelled' && booking.status === 'confirmed') {
           // Refund the sold ticket count
-          ticketType.soldTickets = Math.max(0, ticketType.soldTickets - 1);
+          ticketType.soldTickets = Math.max(0, ticketType.soldTickets - booking.quantity);
           await ticketType.save();
         }
 
@@ -78,9 +92,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           { status },
           { new: true }
         ).populate([
-          { path: 'user', select: 'name email' },
-          { path: 'event', select: 'title date venue' },
-          { path: 'ticketType', select: 'name price' }
+          { path: 'user', select: 'email fullName' },
+          { path: 'ticketType', select: 'name price soldTickets totalTickets' }
         ]);
 
         return res.status(200).json({
@@ -89,27 +102,47 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         });
       } catch (error) {
         console.error('Error updating booking:', error);
-        return res.status(500).json({
-          success: false,
-          message: 'Error updating booking',
+        return res.status(400).json({ 
+          success: false, 
+          message: error instanceof Error ? error.message : 'Error updating booking' 
         });
       }
+
     case 'DELETE':
       try {
-        const deletedBooking = await Booking.deleteOne({ _id: id });
+        const booking = await Booking.findById(id).populate('ticketType');
         
-        if (!deletedBooking) {
-          return res.status(404).json({ success: false, message: 'Booking not found' });
+        if (!booking) {
+          return res.status(404).json({
+            success: false,
+            message: 'Booking not found',
+          });
         }
-        
-        return res.status(200).json({ success: true, data: {} });
+
+        // If the booking was confirmed, refund the ticket count
+        if (booking.status === 'confirmed') {
+          const ticketType = await TicketType.findById(booking.ticketType);
+          if (ticketType) {
+            ticketType.soldTickets = Math.max(0, ticketType.soldTickets - booking.quantity);
+            await ticketType.save();
+          }
+        }
+
+        await booking.deleteOne();
+
+        return res.status(200).json({
+          success: true,
+          message: 'Booking deleted successfully',
+        });
       } catch (error) {
-        return res.status(400).json({ success: false, error });
+        console.error('Error deleting booking:', error);
+        return res.status(400).json({ 
+          success: false, 
+          message: error instanceof Error ? error.message : 'Error deleting booking' 
+        });
       }
+
     default:
-      return res.status(405).json({
-        success: false,
-        message: 'Method not allowed',
-      });
+      return res.status(405).json({ success: false, message: 'Method not allowed' });
   }
 } 

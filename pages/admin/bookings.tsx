@@ -106,7 +106,7 @@ const BookingsManagement = () => {
   useEffect(() => {
     const fetchBookings = async () => {
       try {
-        const response = await fetch('/api/admin/bookings');
+        const response = await fetch('/api/bookings');
         const data = await response.json();
         if (data.success) {
           setBookings(data.data);
@@ -145,7 +145,7 @@ const BookingsManagement = () => {
         }
       }
       
-      const response = await fetch(`/api/admin/bookings/${bookingId}`, {
+      const response = await fetch(`/api/bookings/${bookingId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -203,7 +203,7 @@ const BookingsManagement = () => {
       }
       
       setError(null);
-      const response = await fetch(`/api/admin/bookings/${bookingId}`, {
+      const response = await fetch(`/api/bookings/${bookingId}`, {
         method: 'DELETE',
       });
 
@@ -399,16 +399,16 @@ const BookingsManagement = () => {
                           <strong>Trade:</strong> {booking.trade}
                         </Typography>
                         <Typography variant="body2">
-                          <strong>Event:</strong> {booking.event.name}
+                          <strong>Event:</strong> {booking.event?.name || 'N/A'}
                         </Typography>
                         <Typography variant="body2">
-                          <strong>Event Date:</strong> {new Date(booking.event.date).toLocaleString()}
+                          <strong>Event Date:</strong> {booking.event?.date ? new Date(booking.event.date).toLocaleString() : 'N/A'}
                         </Typography>
                         <Typography variant="body2">
-                          <strong>Location:</strong> {booking.event.location}
+                          <strong>Location:</strong> {booking.event?.location || 'N/A'}
                         </Typography>
                         <Typography variant="body2">
-                          <strong>Ticket Type:</strong> {booking.ticketType.name}
+                          <strong>Ticket Type:</strong> {booking.ticketType?.name || 'N/A'}
                         </Typography>
                         <Typography variant="body2">
                           <strong>Quantity:</strong> {booking.quantity}
@@ -522,13 +522,13 @@ const BookingsManagement = () => {
                           <Typography variant="body2">Trade: {booking.trade}</Typography>
                         </TableCell>
                         <TableCell>
-                          <Typography variant="body2">{booking.event.name}</Typography>
+                          <Typography variant="body2">{booking.event?.name || 'N/A'}</Typography>
                           <Typography variant="body2" color="text.secondary">
-                            {new Date(booking.event.date).toLocaleDateString()}
+                            {booking.event?.date ? new Date(booking.event.date).toLocaleDateString() : 'N/A'}
                           </Typography>
                         </TableCell>
                         <TableCell>
-                          <Typography variant="body2">{booking.ticketType.name}</Typography>
+                          <Typography variant="body2">{booking.ticketType?.name || 'N/A'}</Typography>
                           <Typography variant="body2" color="text.secondary">
                             Qty: {booking.quantity}
                           </Typography>
@@ -671,10 +671,10 @@ const BookingsManagement = () => {
                   Booking Information
                 </Typography>
                 <Stack spacing={1}>
-                  <Typography>Event: {selectedBooking.event.name}</Typography>
-                  <Typography>Date: {new Date(selectedBooking.event.date).toLocaleString()}</Typography>
-                  <Typography>Location: {selectedBooking.event.location}</Typography>
-                  <Typography>Ticket: {selectedBooking.ticketType.name}</Typography>
+                  <Typography>Event: {selectedBooking.event?.name || 'N/A'}</Typography>
+                  <Typography>Date: {selectedBooking.event?.date ? new Date(selectedBooking.event.date).toLocaleString() : 'N/A'}</Typography>
+                  <Typography>Location: {selectedBooking.event?.location || 'N/A'}</Typography>
+                  <Typography>Ticket: {selectedBooking.ticketType?.name || 'N/A'}</Typography>
                   <Typography>Quantity: {selectedBooking.quantity}</Typography>
                   <Typography>Amount: GHS {(selectedBooking.totalAmount || selectedBooking.ticketType?.price || 0).toFixed(2)}</Typography>
                   {selectedBooking.discountApplied && (
