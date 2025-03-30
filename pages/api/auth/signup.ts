@@ -12,6 +12,32 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const { fullName, email, password, phoneNumber } = req.body;
 
+    // Validate required fields
+    if (!fullName || !email || !password || !phoneNumber) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide all required fields',
+      });
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide a valid email address',
+      });
+    }
+
+    // Validate phone number format
+    const phoneRegex = /^[0-9+]{10,12}$/;
+    if (!phoneRegex.test(phoneNumber)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide a valid phone number',
+      });
+    }
+
     // Check if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
@@ -20,18 +46,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // Create new user
     const user = await User.create({
-      name: fullName,
+      fullName,
       email,
       password,
       phoneNumber,
+      role: 'user'
     });
 
     // Remove password from response
     const userResponse = {
       id: user._id,
-      name: user.name,
+      fullName: user.fullName,
       email: user.email,
       phoneNumber: user.phoneNumber,
+      role: user.role
     };
 
     return res.status(201).json({

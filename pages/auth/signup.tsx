@@ -54,7 +54,12 @@ const SignUp = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(values),
+        body: JSON.stringify({
+          fullName: values.fullName,
+          email: values.email,
+          password: values.password,
+          phoneNumber: values.phoneNumber
+        }),
       });
 
       const data = await response.json();
@@ -66,7 +71,7 @@ const SignUp = () => {
       // Redirect to sign in page
       router.push('/auth/signin?registered=true');
     } catch (err: any) {
-      setError(err.message);
+      setError(err.message || 'An error occurred during signup');
     } finally {
       setLoading(false);
     }
