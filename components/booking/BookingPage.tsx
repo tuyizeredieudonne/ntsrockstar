@@ -353,7 +353,7 @@ const BookingPage: React.FC = () => {
                 
                 <Alert severity="info" sx={{ mb: 2 }}>
                   <Typography variant="body1" fontWeight="bold">
-                    MoMo Code: {eventDetails.momoCode}
+                    MoMo Code: 0791786228
                   </Typography>
                 </Alert>
               </Box>
