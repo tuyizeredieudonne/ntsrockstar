@@ -130,7 +130,7 @@ const TicketSelection: React.FC<TicketSelectionProps> = ({
                         mr: 1
                       }}
                     >
-                      GHS {ticket.price.toFixed(2)}
+                      RF {ticket.price.toFixed(2)}
                     </Typography>
                   )}
                   
@@ -142,7 +142,7 @@ const TicketSelection: React.FC<TicketSelectionProps> = ({
                       color: discounted ? 'success.main' : 'white'
                     }}
                   >
-                    GHS {price.toFixed(2)}
+                    RF {price.toFixed(2)}
                   </Typography>
                   
                   {discounted && (

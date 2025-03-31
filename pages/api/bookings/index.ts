@@ -315,8 +315,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           fullName,
           email,
           phoneNumber,
-          studentLevel,
-          trade,
+          studentLevel: studentLevel || 'Not Specified',
+          trade: trade || 'Not Specified',
           paymentScreenshot,
           status: 'pending'
         });
@@ -327,9 +327,40 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           .populate('event', 'name date location')
           .populate('ticketType', 'name price discountPrice description features');
 
+        // Transform the data to match frontend interface
+        const transformedBooking = {
+          _id: populatedBooking._id,
+          fullName: populatedBooking.fullName,
+          email: populatedBooking.email,
+          phoneNumber: populatedBooking.phoneNumber,
+          studentLevel: populatedBooking.studentLevel,
+          trade: populatedBooking.trade,
+          event: {
+            _id: populatedBooking.event._id,
+            name: populatedBooking.event.name,
+            date: populatedBooking.event.date,
+            location: populatedBooking.event.location
+          },
+          ticketType: {
+            _id: populatedBooking.ticketType._id,
+            name: populatedBooking.ticketType.name,
+            price: populatedBooking.ticketType.price,
+            discountPrice: populatedBooking.ticketType.discountPrice,
+            description: populatedBooking.ticketType.description,
+            features: populatedBooking.ticketType.features
+          },
+          quantity: populatedBooking.quantity,
+          totalAmount: populatedBooking.totalAmount,
+          status: populatedBooking.status,
+          momoTransactionId: populatedBooking.momoTransactionId,
+          paymentScreenshot: populatedBooking.paymentScreenshot,
+          createdAt: populatedBooking.createdAt,
+          updatedAt: populatedBooking.updatedAt
+        };
+
         return res.status(201).json({
           success: true,
-          data: populatedBooking,
+          data: transformedBooking,
         });
       } catch (error) {
         console.error('Booking creation error:', error);

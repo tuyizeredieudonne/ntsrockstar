@@ -393,10 +393,10 @@ const BookingsManagement = () => {
                           <strong>Phone:</strong> {booking.phoneNumber}
                         </Typography>
                         <Typography variant="body2">
-                          <strong>Student Level:</strong> {booking.studentLevel}
+                          <strong>Student Level:</strong> {booking.studentLevel || 'Not Specified'}
                         </Typography>
                         <Typography variant="body2">
-                          <strong>Trade:</strong> {booking.trade}
+                          <strong>Trade:</strong> {booking.trade || 'Not Specified'}
                         </Typography>
                         <Typography variant="body2">
                           <strong>Event:</strong> {booking.event?.name || 'N/A'}
@@ -512,14 +512,24 @@ const BookingsManagement = () => {
                     .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                     .map((booking) => (
                       <TableRow key={booking._id}>
-                        <TableCell>{booking.fullName}</TableCell>
                         <TableCell>
-                          <Typography variant="body2">{booking.email}</Typography>
-                          <Typography variant="body2">{booking.phoneNumber}</Typography>
+                          <Typography variant="body2">
+                            <strong>Name:</strong> {booking.fullName}
+                          </Typography>
+                          <Typography variant="body2">
+                            <strong>Email:</strong> {booking.email}
+                          </Typography>
+                          <Typography variant="body2">
+                            <strong>Phone:</strong> {booking.phoneNumber}
+                          </Typography>
                         </TableCell>
                         <TableCell>
-                          <Typography variant="body2">Level: {booking.studentLevel}</Typography>
-                          <Typography variant="body2">Trade: {booking.trade}</Typography>
+                          <Typography variant="body2">
+                            <strong>Level:</strong> {booking.studentLevel || 'Not Specified'}
+                          </Typography>
+                          <Typography variant="body2">
+                            <strong>Trade:</strong> {booking.trade || 'Not Specified'}
+                          </Typography>
                         </TableCell>
                         <TableCell>
                           <Typography variant="body2">{booking.event?.name || 'N/A'}</Typography>
@@ -662,8 +672,8 @@ const BookingsManagement = () => {
                   <Typography>Name: {selectedBooking.fullName}</Typography>
                   <Typography>Email: {selectedBooking.email}</Typography>
                   <Typography>Phone: {selectedBooking.phoneNumber}</Typography>
-                  <Typography>Student Level: {selectedBooking.studentLevel}</Typography>
-                  <Typography>Trade: {selectedBooking.trade}</Typography>
+                  <Typography>Student Level: {selectedBooking.studentLevel || 'Not Specified'}</Typography>
+                  <Typography>Trade: {selectedBooking.trade || 'Not Specified'}</Typography>
                 </Stack>
               </Grid>
               <Grid item xs={12} md={6}>

@@ -251,7 +251,7 @@ const BookingForm: React.FC<BookingFormProps> = ({
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <Typography variant="body1">{ticketName}</Typography>
                   <Typography variant="body1" fontWeight="bold">
-                    GHS {ticketPrice.toFixed(2)}
+                    RF {ticketPrice.toFixed(2)}
                   </Typography>
                 </Box>
               </Paper>
