@@ -86,10 +86,10 @@ const Footer: React.FC = () => {
                 Nyanza TSS
               </Typography>
               <Typography variant="body2" sx={{ opacity: 0.8 }}>
-                Email: info@ntsrockstar.com
+                Email: leboydechris@gmail.com
               </Typography>
               <Typography variant="body2" sx={{ opacity: 0.8 }}>
-                Phone: +250 788 123 456
+                Phone: +250 79 1786 228
               </Typography>
               <Typography variant="body2" sx={{ opacity: 0.8 }}>
                 Date: May 17, 2025
