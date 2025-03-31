@@ -544,9 +544,7 @@ export default function Home() {
                       <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                         <AccessTime sx={{ mr: 2, color: 'primary.main' }} />
                         <Typography variant="body1">
-                          {eventDetails.date ? 
-                            `${format(new Date(eventDetails.date), 'dd/M/yyyy')} ${format(new Date(eventDetails.date), 'HH:mm')}-${format(new Date(eventDetails.endTime), 'HH:mm')}` 
-                            : '17/5/2025 18:00-22:00'}
+                      0791786228
                         </Typography>
                       </Box>
                       <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
