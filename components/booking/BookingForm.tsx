@@ -36,9 +36,12 @@ const bookingValidationSchema = Yup.object().shape({
     .required('Phone number is required')
     .matches(/^[0-9+]{10,12}$/, 'Please enter a valid phone number'),
   studentLevel: Yup.string()
-    .required('Student level is required'),
+    .required('Student level is required')
+    .oneOf(['L3', 'L4', 'L5'], 'Invalid student level'),
   trade: Yup.string()
-    .required('Trade is required'),
+    .required('Trade is required')
+    .min(2, 'Trade must be at least 2 characters')
+    .max(50, 'Trade cannot be more than 50 characters'),
   momoTransactionId: Yup.string()
     .required('Mobile Money Transaction ID is required')
     .min(10, 'Transaction ID must be at least 10 characters'),

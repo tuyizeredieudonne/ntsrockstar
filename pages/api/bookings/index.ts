@@ -188,8 +188,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           fullName: booking.user?.fullName || 'N/A',
           email: booking.user?.email || 'N/A',
           phoneNumber: booking.user?.phoneNumber || 'N/A',
-          studentLevel: booking.user?.studentLevel || 'N/A',
-          trade: booking.user?.trade || 'N/A',
+          studentLevel: booking.studentLevel || 'N/A',
+          trade: booking.trade || 'N/A',
           event: {
             _id: booking.event?._id || 'N/A',
             name: booking.event?.name || 'N/A',
@@ -323,7 +323,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         // Populate the booking with related data
         const populatedBooking = await Booking.findById(booking._id)
-          .populate('user', 'fullName email phoneNumber studentLevel trade')
+          .populate('user', 'fullName email phoneNumber')
           .populate('event', 'name date location')
           .populate('ticketType', 'name price discountPrice description features');
 

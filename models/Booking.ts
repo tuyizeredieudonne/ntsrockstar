@@ -56,12 +56,15 @@ const BookingSchema = new mongoose.Schema({
   },
   studentLevel: {
     type: String,
-    required: false,
+    required: true,
+    enum: ['L3', 'L4', 'L5'],
     default: 'Not Specified'
   },
   trade: {
     type: String,
-    required: false,
+    required: true,
+    minlength: 2,
+    maxlength: 50,
     default: 'Not Specified'
   }
 }, {

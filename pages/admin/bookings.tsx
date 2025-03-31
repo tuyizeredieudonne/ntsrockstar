@@ -393,10 +393,10 @@ const BookingsManagement = () => {
                           <strong>Phone:</strong> {booking.phoneNumber}
                         </Typography>
                         <Typography variant="body2">
-                          <strong>Student Level:</strong> {booking.studentLevel || 'Not Specified'}
+                          <strong>Student Level:</strong> {booking.studentLevel}
                         </Typography>
                         <Typography variant="body2">
-                          <strong>Trade:</strong> {booking.trade || 'Not Specified'}
+                          <strong>Trade:</strong> {booking.trade}
                         </Typography>
                         <Typography variant="body2">
                           <strong>Event:</strong> {booking.event?.name || 'N/A'}
@@ -525,10 +525,10 @@ const BookingsManagement = () => {
                         </TableCell>
                         <TableCell>
                           <Typography variant="body2">
-                            <strong>Level:</strong> {booking.studentLevel || 'Not Specified'}
+                            <strong>Level:</strong> {booking.studentLevel}
                           </Typography>
                           <Typography variant="body2">
-                            <strong>Trade:</strong> {booking.trade || 'Not Specified'}
+                            <strong>Trade:</strong> {booking.trade}
                           </Typography>
                         </TableCell>
                         <TableCell>
@@ -672,8 +672,8 @@ const BookingsManagement = () => {
                   <Typography>Name: {selectedBooking.fullName}</Typography>
                   <Typography>Email: {selectedBooking.email}</Typography>
                   <Typography>Phone: {selectedBooking.phoneNumber}</Typography>
-                  <Typography>Student Level: {selectedBooking.studentLevel || 'Not Specified'}</Typography>
-                  <Typography>Trade: {selectedBooking.trade || 'Not Specified'}</Typography>
+                  <Typography>Student Level: {selectedBooking.studentLevel}</Typography>
+                  <Typography>Trade: {selectedBooking.trade}</Typography>
                 </Stack>
               </Grid>
               <Grid item xs={12} md={6}>
