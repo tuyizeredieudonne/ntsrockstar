@@ -29,7 +29,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         title: 'Event Preview',
         content: 'Check out this amazing preview of what to expect at the event!',
         type: 'video',
-        videoUrl: 'https://youtu.be/WkbXvuTxbJU?si=_Jnp5v5u1WRqr_Rx',
+        videoUrl: 'https://m.youtube.com/watch?v=LvFM2Ftloj4&pp=ygUUemVvIHRyYXAgcGVyZm9ybWFuY2U%3D',
         isPublished: true,
         createdAt: new Date().toISOString(),
       }
