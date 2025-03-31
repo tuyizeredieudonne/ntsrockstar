@@ -65,7 +65,7 @@ EventDetailsSchema.statics.getEventDetails = async function() {
       ticketPrice: Number(process.env.EVENT_TICKET_PRICE) || 1000,
       discountPrice: Number(process.env.EVENT_DISCOUNT_PRICE) || 800,
       discountEndTime: new Date(process.env.EVENT_DISCOUNT_END_TIME || '2025-05-17T12:00:00'),
-      momoCode: process.env.EVENT_MOMO_CODE || '078XXXXXXX',
+      momoCode: process.env.EVENT_MOMO_CODE || '0791786228',
       momoInstructions: process.env.EVENT_MOMO_INSTRUCTIONS || 'Pay using MTN Mobile Money to the number above and keep your transaction ID for verification.',
     });
   }

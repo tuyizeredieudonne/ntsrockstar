@@ -73,12 +73,37 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           ticketType.soldTickets += booking.quantity;
           await ticketType.save();
 
+          // Update booking status first
+          const updatedBooking = await Booking.findByIdAndUpdate(
+            id,
+            { status },
+            { new: true }
+          ).populate([
+            { path: 'event', select: 'name date location' },
+            { path: 'ticketType', select: 'name price discountPrice description features' }
+          ]);
+
+          if (!updatedBooking) {
+            throw new Error('Failed to update booking status');
+          }
+
           // Send confirmation email
-          const { subject, html } = generateBookingConfirmationEmail(booking);
-          await sendEmail({
-            to: booking.user.email,
-            subject,
-            html,
+          try {
+            const { subject, html } = generateBookingConfirmationEmail(updatedBooking);
+            await sendEmail({
+              to: updatedBooking.email,
+              subject,
+              html,
+            });
+            console.log('Confirmation email sent successfully');
+          } catch (emailError) {
+            console.error('Error sending confirmation email:', emailError);
+            // Don't throw error here, just log it
+          }
+
+          return res.status(200).json({
+            success: true,
+            data: updatedBooking,
           });
         } else if (status === 'cancelled' && booking.status === 'confirmed') {
           // Refund the sold ticket count
@@ -86,14 +111,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           await ticketType.save();
         }
 
-        // Update booking status
+        // Update booking status for other cases
         const updatedBooking = await Booking.findByIdAndUpdate(
           id,
           { status },
           { new: true }
         ).populate([
-          { path: 'user', select: 'email fullName' },
-          { path: 'ticketType', select: 'name price soldTickets totalTickets' }
+          { path: 'event', select: 'name date location' },
+          { path: 'ticketType', select: 'name price discountPrice description features' }
         ]);
 
         return res.status(200).json({

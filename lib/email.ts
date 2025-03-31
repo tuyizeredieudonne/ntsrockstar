@@ -41,7 +41,7 @@ export const generateBookingConfirmationEmail = (booking: any) => {
       </div>
 
       <div style="background-color: #fff; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-        <p style="font-size: 16px; color: #333;">Dear ${booking.user.fullName},</p>
+        <p style="font-size: 16px; color: #333;">Dear ${booking.fullName},</p>
         
         <p style="color: #666; line-height: 1.6;">
           Your booking has been confirmed! We're excited to have you join us for an unforgettable night of music and entertainment.
@@ -53,10 +53,14 @@ export const generateBookingConfirmationEmail = (booking: any) => {
             <div>
               <p style="margin: 5px 0;"><strong style="color: #444;">Ticket Type:</strong><br>${booking.ticketType.name}</p>
               <p style="margin: 5px 0;"><strong style="color: #444;">Quantity:</strong><br>${booking.quantity}</p>
+              <p style="margin: 5px 0;"><strong style="color: #444;">Student Level:</strong><br>${booking.studentLevel}</p>
+              <p style="margin: 5px 0;"><strong style="color: #444;">Trade:</strong><br>${booking.trade}</p>
             </div>
             <div>
-              <p style="margin: 5px 0;"><strong style="color: #444;">Total Amount:</strong><br>GHS ${booking.totalAmount}</p>
+              <p style="margin: 5px 0;"><strong style="color: #444;">Total Amount:</strong><br>RF ${booking.totalAmount}</p>
               <p style="margin: 5px 0;"><strong style="color: #444;">Status:</strong><br>Confirmed</p>
+              <p style="margin: 5px 0;"><strong style="color: #444;">Event Date:</strong><br>${new Date(booking.event.date).toLocaleDateString()}</p>
+              <p style="margin: 5px 0;"><strong style="color: #444;">Location:</strong><br>${booking.event.location}</p>
             </div>
           </div>
         </div>

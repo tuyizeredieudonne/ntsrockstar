@@ -544,7 +544,9 @@ export default function Home() {
                       <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                         <AccessTime sx={{ mr: 2, color: 'primary.main' }} />
                         <Typography variant="body1">
-                          {eventDetails.date ? format(new Date(eventDetails.date), 'MMMM d, yyyy') : 'May 17, 2023'} at {eventDetails.date ? format(new Date(eventDetails.date), 'h:mm a') : '6:00 PM'} - {eventDetails.endTime ? format(new Date(eventDetails.endTime), 'h:mm a') : '10:00 PM'}
+                          {eventDetails.date ? 
+                            `${format(new Date(eventDetails.date), 'dd/M/yyyy')} ${format(new Date(eventDetails.date), 'HH:mm')}-${format(new Date(eventDetails.endTime), 'HH:mm')}` 
+                            : '17/5/2025 18:00-22:00'}
                         </Typography>
                       </Box>
                       <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
@@ -651,10 +653,10 @@ export default function Home() {
                     </Typography>
                     <Box sx={{ my: 2 }}>
                       <Typography variant="body1" gutterBottom>
-                        <strong>MoMo Code:</strong> {eventDetails.momoCode || '078XXXXXXX'}
+                        <strong>MoMo Code:</strong> {eventDetails.momoCode || '0791786228'}
                       </Typography>
                       <Typography variant="body1" paragraph>
-                        {eventDetails.momoInstructions || 'Pay using MTN Mobile Money to the number above and keep your transaction ID for verification.'}
+                        {eventDetails.momoInstructions || 'Pay using MTN Mobile Money to the number above and keep your transaction ID and payment screen shot for verification.'}
                       </Typography>
                     </Box>
                     
