@@ -544,7 +544,7 @@ export default function Home() {
                       <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                         <AccessTime sx={{ mr: 2, color: 'primary.main' }} />
                         <Typography variant="body1">
-                      0791786228
+                      17/5/2025  at 18:00pm to 22:00pm
                         </Typography>
                       </Box>
                       <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
@@ -651,7 +651,7 @@ export default function Home() {
                     </Typography>
                     <Box sx={{ my: 2 }}>
                       <Typography variant="body1" gutterBottom>
-                        <strong>MoMo Code:</strong> {eventDetails.momoCode || '0791786228'}
+                        <strong>MoMo phone number:</strong>0791786228
                       </Typography>
                       <Typography variant="body1" paragraph>
                         {eventDetails.momoInstructions || 'Pay using MTN Mobile Money to the number above and keep your transaction ID and payment screen shot for verification.'}
