@@ -189,7 +189,7 @@ export default function SignIn() {
                   },
                 }}
               >
-                {loading ? 'Signing in...' : 'Sign In'}
+                {loading ? 'loging in...' : 'login'}
               </Button>
             </form>
 
