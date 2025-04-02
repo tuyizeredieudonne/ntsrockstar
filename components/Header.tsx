@@ -293,7 +293,7 @@ const Header: React.FC = () => {
                         }}
                       >
                         <PersonAddIcon />
-                      Sign Up
+                      register
                     </MenuItem>
                   </>
                 )}
