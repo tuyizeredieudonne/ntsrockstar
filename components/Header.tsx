@@ -255,7 +255,7 @@ const Header: React.FC = () => {
                       }}
                     >
                       <LogoutIcon />
-                    Sign Out
+                    logOut
                   </MenuItem>
                 ) : (
                   <>
@@ -275,7 +275,7 @@ const Header: React.FC = () => {
                         }}
                       >
                         <LoginIcon />
-                      Sign In
+                      login
                     </MenuItem>
                     <MenuItem 
                       onClick={() => handleNavigation('/auth/signup')}
