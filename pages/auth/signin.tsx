@@ -56,7 +56,7 @@ export default function SignIn() {
   return (
     <>
       <Head>
-        <title>Sign In - NTS Rockstar Party</title>
+        <title>login - NTS Rockstar Party</title>
         <meta name="description" content="Sign in to your NTS Rockstar Party account" />
       </Head>
 
@@ -98,7 +98,7 @@ export default function SignIn() {
                 Welcome Back
               </Typography>
               <Typography variant="body1" color="text.secondary">
-                Sign in to your account to continue
+                login to your account to continue
               </Typography>
             </Box>
 
@@ -207,7 +207,7 @@ export default function SignIn() {
                     },
                   }}
                 >
-                  Sign up
+                  register
                 </MUILink>
               </Typography>
             </Box>
